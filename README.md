@@ -20,7 +20,7 @@ data structures and synchronization primitives verified and optimized with
 To run vsyncer you'll need the following tools:
 
 - clang and llvm >= v10
-- Dartagnan >= v3.2.0 (alternative)
+- Dartagnan >= v4.0.0 (alternative)
 - GenMC >= v0.8 (alternative)
 
 You can have them installed on your system or use docker containers.
