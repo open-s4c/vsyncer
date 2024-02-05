@@ -27,6 +27,8 @@ const (
 	GIMM
 	// RC11 memory model
 	RC11
+	// VMM memory model
+	VMM
 )
 
 // ParseMemoryModel parses a string and returns an equivalent memory model identifier.
@@ -48,6 +50,8 @@ func ParseMemoryModel(mm string) MemoryModel {
 		return GIMM
 	case "rc11":
 		return RC11
+	case "vmm":
+		return VMM
 	default:
 		return InvalidMemoryModel
 	}

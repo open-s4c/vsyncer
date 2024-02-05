@@ -39,6 +39,7 @@ var models = map[MemoryModel]struct {
 	IMM:   {"imm.cat", "imm"},
 	GIMM:  {"genmc-imm.cat", "imm"},
 	RC11:  {"rc11.cat", "c11"},
+	VMM:   {"vmm.cat", "c11"},
 }
 
 func (c *DartagnanChecker) prepare(m DumpableModule, testFn string) error {
@@ -52,19 +53,13 @@ func (c *DartagnanChecker) prepare(m DumpableModule, testFn string) error {
 		return err
 	}
 
-	obj, err := c.createVerifierMock()
-	if err != nil {
-		return err
-	}
-	defer tools.Remove(obj)
-
 	llvmLink, err := tools.FindCmd("LLVM_LINK_CMD", "llvm-link")
 	if err != nil {
 		return fmt.Errorf("could not find llvm-link command: %v", err)
 	}
 
-	logger.Debug(append(llvmLink, fn, obj, "-S", "-o", testFn))
-	out, err := exec.Command(llvmLink[0], append(llvmLink[1:], fn, obj, "-S", "-o", testFn)...).CombinedOutput()
+	logger.Debug(append(llvmLink, fn, "-S", "-o", testFn))
+	out, err := exec.Command(llvmLink[0], append(llvmLink[1:], fn, "-S", "-o", testFn)...).CombinedOutput()
 	if err != nil {
 		logger.Debug(string(out))
 		return fmt.Errorf("could not link llvm files: %v", err)
@@ -81,8 +76,7 @@ func (c *DartagnanChecker) run(ctx context.Context, testFn string) (string, erro
 	opts := []string{
 		"--property=program_spec,liveness",
 		"--modeling.threadCreateAlwaysSucceeds=true",
-		"--modeling.mixedType=true",
-		"--modeling.precision=64",
+		"--encoding.wmm.idl2sat=true",
 		"--solver=yices2",
 		fmt.Sprintf("--target=%s", models[c.mm].arch),
 		fmt.Sprintf("%s/cat/%s", dartagnanHome, models[c.mm].cat),
@@ -193,8 +187,4 @@ func (c *DartagnanChecker) createVerifierMock() (string, error) {
 const dartagnanVerifierMock = `
 #include <pthread.h>
 
-int __VERIFIER_thread_create(pthread_t *thread, const pthread_attr_t *attr,
-	void *(*start_routine) (void *), void *arg) {
-	return pthread_create(thread, attr, start_routine, arg);
-}
 `
