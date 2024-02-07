@@ -75,7 +75,7 @@ and vice-versa.
 
 An **assignment** is a selection of operations and a sequence
 of values representing the operations' memory orderings or their plain/atomic
-modifier (depending on the selection type).  The sequence of values is enconded
+modifier (depending on the selection type).  The sequence of values is encoded
 as a **bitsequence**  such as `0b001101` or `0x1a40`.
 
 *L* and *S* assignments take bitsequences in which each bit represents whether a specific read or write operation is an atomic or plain operation.
