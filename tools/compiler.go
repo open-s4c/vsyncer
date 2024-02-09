@@ -16,7 +16,7 @@ import (
 )
 
 // Compile calls clang compiler and creates an LLVM IR module using the required compiler options.
-func Compile(args []string, ofile string, mockDartagnan bool) error {
+func Compile(args []string, ofile string, addGenmcIncludePath bool) error {
 	clang, err := FindCmd("CLANG_CMD", "clang")
 	if err != nil {
 		return err
@@ -27,7 +27,7 @@ func Compile(args []string, ofile string, mockDartagnan bool) error {
 		opts = append(opts, strings.Split(cflags, " ")...)
 	}
 
-	if mockDartagnan {
+	if addGenmcIncludePath {
 		genmc_path, err := exec.LookPath("genmc")
 		if err != nil {
 			log.Fatal("genmc was not found in PATH")
