@@ -6,8 +6,6 @@
 package tools
 
 import (
-	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -30,12 +28,6 @@ func Compile(args []string, ofile string, mockDartagnan bool) error {
 	}
 
 	if mockDartagnan {
-		mockFile, err := createBoilerplate("dartagnan", ".h")
-		if err != nil {
-			return fmt.Errorf("could not create header file: %v", err)
-		}
-		defer Remove(mockFile)
-
 		genmc_path, err := exec.LookPath("genmc")
 		if err != nil {
 			log.Fatal("genmc was not found in PATH")
@@ -51,7 +43,6 @@ func Compile(args []string, ofile string, mockDartagnan bool) error {
 		opts = append(opts,
 			"-I", genmcIncludes,
 			"-D__CONFIG_GENMC_INODE_DATA_SIZE=64",
-			"--include", mockFile,
 		)
 	}
 
@@ -88,35 +79,4 @@ func (bp boilerplateMap) names() []string {
 
 func (bp boilerplateMap) stringNames() string {
 	return strings.Join(bp.names(), " | ")
-}
-
-var boilerplates = boilerplateMap{
-	"dartagnan": `
-#ifndef DARTAGNAN_MOCK
-#define DARTAGNAN_MOCK
-void __VERIFIER_loop_bound(int var) { (void) var; }
-#endif
-	`,
-} /* boilerplates */
-
-func createBoilerplate(bp, ext string) (string, error) {
-	bplate, has := boilerplates[bp]
-	if !has {
-		return "", fmt.Errorf("boilerplate '%s' not found", bp)
-	}
-	tmp, err := ioutil.TempFile("./", "boilerplate-*"+ext)
-	if err != nil {
-		return "", err
-	}
-	defer func() {
-		if err := tmp.Close(); err != nil {
-			logger.Warnf("error closing file: %v", err)
-		}
-	}()
-
-	_, err = tmp.WriteString(bplate)
-	if err != nil {
-		return "", err
-	}
-	return tmp.Name(), nil
 }
