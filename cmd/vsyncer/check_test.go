@@ -79,14 +79,15 @@ func TestCheck(t *testing.T) {
 			orderSelection = nil
 
 			err := checkRun(nil, args)
-			if tc.err == nil {
+			if tc.r.Status == checker.CheckOK && tc.err == nil {
 				assert.Nil(t, err)
 				return
 			} else if terr, tok := tc.err.(*vError); tok {
 				assert.NotNil(t, err)
 				er, ok := err.(*vError)
 				assert.True(t, ok)
-				assert.Equal(t, er.typ, terr.typ)
+				assert.Equal(t, terr.typ, er.typ)
+				assert.Equal(t, tc.r.Status, er.status)
 				return
 			}
 			assert.NotNil(t, err)

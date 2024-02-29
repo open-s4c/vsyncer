@@ -55,7 +55,7 @@ func (csv csvReport) save(filename string) {
 		fmt.Fprintln(fp)
 	}
 
-	fmt.Fprintf(fp, "%s, %s, %s, %v, %v, %v, %v, %d, %s, %d\n",
+	fmt.Fprintf(fp, "%s, %s, %v, %v, %v, %v, %v, %d, %s, %d\n",
 		time.Now().Format(dateTime),
 		csv.name,
 		csv.checker,
