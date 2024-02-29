@@ -16,6 +16,7 @@ type DumpableModule interface {
 // Tool interface consists of one function to check the module and return a result.
 type Tool interface {
 	Check(ctx context.Context, m DumpableModule) (CheckResult, error)
+	GetVersion() string
 }
 
 // CheckStatus represents the outcome of a check run
@@ -41,7 +42,7 @@ const (
 
 // CheckResult is a pair of CheckStatus and output string
 type CheckResult struct {
-	Status CheckStatus
-	Output string
+	Status        CheckStatus
+	Output        string
 	NumExecutions int
 }

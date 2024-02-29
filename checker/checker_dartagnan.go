@@ -104,6 +104,11 @@ func (c *DartagnanChecker) run(ctx context.Context, testFn string) (string, erro
 	return string(out), err
 }
 
+func (c *DartagnanChecker) GetVersion() string {
+	// TODO: implement
+	return "unknown"
+}
+
 // Check performs a check run with Dartagnan
 func (c *DartagnanChecker) Check(ctx context.Context, m DumpableModule) (cr CheckResult, err error) {
 	testFn, err := tools.Touch("dartagnan-*.ll")

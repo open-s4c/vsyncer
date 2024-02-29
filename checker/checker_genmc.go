@@ -41,16 +41,19 @@ const genmcErrorCode = 42
 
 // NewGenMC creates a new GenMC object
 func NewGenMC(mm MemoryModel, threads uint, mcPath string) *GenMC {
-	return &GenMC{
+	genmc := &GenMC{
 		threads: threads,
 		mm:      mm,
 		mcPath:  mcPath,
 	}
+	genmc.setVersion("genmc")
+	return genmc
 }
 
-func (c *GenMC) setVersion(ctx context.Context, genmcCmd string) {
+func (c *GenMC) setVersion(genmcCmd string) {
 	args := []string{"--version"}
-	ostr, e := tools.RunCmdContext(ctx, genmcCmd, args, nil)
+	my_ctx := context.Background()
+	ostr, e := tools.RunCmdContext(my_ctx, genmcCmd, args, nil)
 	if e == nil {
 		r, err := regexp.Compile("v(\\d+)\\.(\\d+)(\\.(\\d+))?")
 		if err == nil {
@@ -64,6 +67,10 @@ func (c *GenMC) setVersion(ctx context.Context, genmcCmd string) {
 			}
 		}
 	}
+}
+
+func (c *GenMC) GetVersion() string {
+	return fmt.Sprintf("v%d.%d.%d", c.version.major, c.version.minor, c.version.patch)
 }
 
 func (c *GenMC) checkOne(ctx context.Context, genmcCmd []string, opts []string, i int) error {
@@ -157,9 +164,8 @@ func (c *GenMC) getOpts() ([]string, error) {
 	} else {
 		extendedOpts = []string{
 			"-check-liveness",
-			"-disable-ipr",
-			"-disable-sr",
 			"-disable-estimation",
+			"-disable-spin-assume",
 		}
 	}
 
@@ -237,9 +243,6 @@ func (c *GenMC) Check(ctx context.Context, m DumpableModule) (cr CheckResult, er
 		// otherwise look into the path the user provided
 		genmcCmd = []string{path.Join(c.mcPath, "genmc")}
 	}
-
-	// set GenMC version
-	c.setVersion(ctx, genmcCmd[0])
 
 	extendedOpts, err := c.getOpts()
 	if err != nil {

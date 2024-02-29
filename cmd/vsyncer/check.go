@@ -78,6 +78,7 @@ func checkRun(_ *cobra.Command, args []string) (err error) {
 		ts        = time.Now()
 		result    checker.CheckResult
 		checkerID = getcheckerID()
+		mcVersion = ""
 		mm        = checker.ParseMemoryModel(checkFlags.memoryModel)
 		cxt       = context.Background()
 	)
@@ -85,6 +86,7 @@ func checkRun(_ *cobra.Command, args []string) (err error) {
 		csvReport{
 			name:          fn,
 			checker:       checkerID,
+			version:       mcVersion,
 			memoryModel:   mm,
 			duration:      time.Since(ts),
 			status:        result.Status,
@@ -118,14 +120,15 @@ func checkRun(_ *cobra.Command, args []string) (err error) {
 		cxt, _ = context.WithTimeout(cxt, checkFlags.timeout)
 	}
 
-	if result, err = chkr.Check(cxt, m); err != nil {
+	result, err = chkr.Check(cxt, m)
+	mcVersion = chkr.GetVersion()
+	if err != nil {
 		logger.Debugf("error in checker: %v\n", err)
 		err = verror(checkerError, err)
 		return
 	}
 
 	err = checkResults(result, m, time.Since(ts))
-
 	if fn := rootFlags.outputFn; fn != "" {
 		if lerr := tools.Dump(m, fn); lerr != nil {
 			logger.Debug(lerr)

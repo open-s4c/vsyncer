@@ -28,3 +28,7 @@ func (c *Mock) Check(_ context.Context, _ DumpableModule) (CheckResult, error) {
 	}
 	return c.Result, err
 }
+
+func (c *Mock) GetVersion() string {
+	return "v0.0.0"
+}

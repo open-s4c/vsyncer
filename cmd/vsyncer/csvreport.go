@@ -21,6 +21,7 @@ type csvReport struct {
 	memoryModel   checker.MemoryModel
 	duration      time.Duration
 	status        checker.CheckStatus
+	version       string
 	numExecutions int
 	err           error
 }
@@ -50,14 +51,15 @@ func (csv csvReport) save(filename string) {
 	}()
 
 	if withHeader {
-		fmt.Fprint(fp, "# date, filename, checker, memory_model, duration, status, num_executions, error_type, exit_code")
+		fmt.Fprint(fp, "# date, filename, checker, version, memory_model, duration, status, num_executions, error_type, exit_code")
 		fmt.Fprintln(fp)
 	}
 
-	fmt.Fprintf(fp, "%s, %s, %v, %v, %v, %v, %d, %s, %d\n",
+	fmt.Fprintf(fp, "%s, %s, %s, %v, %v, %v, %v, %d, %s, %d\n",
 		time.Now().Format(dateTime),
 		csv.name,
 		csv.checker,
+		csv.version,
 		csv.memoryModel,
 		csv.duration,
 		csv.status,
