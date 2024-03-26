@@ -27,7 +27,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5.1.0
         with:
-          context: .github/docker
+          context: .
           # Todo - enable push before merging
           push: false
           build-args: "VSYNCER_TAG=${{ github.sha }}"
