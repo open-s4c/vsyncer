@@ -40,7 +40,7 @@ RUN cd /tmp \
 RUN cd /tmp \
     && git clone https://github.com/open-s4c/genmc.git genmc10 \
     && cd genmc10 \
-    && git checkout "v0.10.0" \
+    && git checkout "v0.10.1-a" \
     && autoreconf --install \
     && ./configure --prefix=/usr/share/genmc10 \
     && make install -j8 \
