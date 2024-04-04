@@ -187,4 +187,4 @@ This project is under the support of [OpenHarmony Concurrency & Coordination TSG
 [publication]: https://dl.acm.org/doi/abs/10.1145/3445814.3446748
 [Dartagnan]: https://github.com/hernanponcedeleon/Dat3M
 [GenMC]: https://github.com/MPI-SWS/genmc
-[libvsync]:  https://gitee.com/s4c/libvsync
+[libvsync]:  https://github.com/open-s4c/libvsync
