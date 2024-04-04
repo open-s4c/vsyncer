@@ -18,9 +18,9 @@ help:
 	@echo "- make clean                delete $(BUILD)"
 	@echo "- make test                 run unit tests"
 
-all: generate build
+all: build
 
-build: build/vsyncer
+build: generate build/vsyncer
 
 install: build
 	install $(BUILD)/vsyncer $(PREFIX)/bin/
