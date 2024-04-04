@@ -1,21 +1,47 @@
-all: generate vsyncer
+PREFIX ?= /usr/local
+TAG     = $(shell git describe --always --tags --dirty)
+FLAGS   = -ldflags '-X main.version=$(TAG)'
+BUILD   = build
 
-TAG   = $(shell git describe --always --tags --dirty)
-FLAGS = -ldflags '-X main.version=$(TAG)'
+################################################################################
+# user goals
+################################################################################
+.PHONY: all build install clean help
 
-vsyncer: $(shell find -name '*.go')
-	go build $(FLAGS) -o $@ ./cmd/$@
+help:
+	@echo "Help:"
+	@echo "- make generate             run go generate"
+	@echo "- make build                build vsyncer in $(BUILD)/"
+	@echo "- make install              copy vsyncer into /usr/local/bin"
+	@echo "- make install PREFIX=path  copy vsyncer into \$$PREFIX/bin"
+	@echo "- make all                  all of above"
+	@echo "- make clean                delete $(BUILD)"
+	@echo "- make test                 run unit tests"
 
-PKGS = core module checker optimizer cmd/vsyncer
+all: generate build install
 
-build:
-	mkdir -p build
+build: build/vsyncer
 
-TESTERS = $(addprefix build/tester-,$(subst /,-,$(PKGS)))
-build-testers: $(TESTERS)
+install: build
+	install $(BUILD)/vsyncer $(PREFIX)/bin/
+clean:
+	rm -rf $(BUILD)
 
-build/tester-%: build
-	go test -c -o $@ ./$(subst -,/,$*)
+################################################################################
+# build goals
+################################################################################
+.PHONY: build-dir generate
+
+build-dir:
+	mkdir -p $(BUILD)
+
+$(BUILD)/vsyncer: build-dir $(shell find -name '*.go')
+	go build $(FLAGS) -o $@ ./cmd/vsyncer
+
+################################################################################
+# support goals
+################################################################################
+.PHONY: generate lint test fmt-c
 
 generate:
 	go generate ./...
@@ -24,17 +50,8 @@ lint:
 	revive -exclude vendor/... ./...
 
 test:
-	go test -v ./...
-
-cover:
-	go test -coverpkg=./... -coverprofile=cover.out ./...
-	go tool cover -func=cover.out
+	go test ./...
 
 fmt-c:
-	find . -name '*.c' -o -name '*.h' -exec clang-format -style WebKit -i {} +
-
-clean:
-	rm -rf vsyncer $(TESTERS)
-
-.PHONY: all clean test lint cover generate build-testers
-
+	find . -name '*.c' -o -name '*.h' \
+        	-exec clang-format -style WebKit -i {} +
