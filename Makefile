@@ -12,13 +12,13 @@ help:
 	@echo "Help:"
 	@echo "- make generate             run go generate"
 	@echo "- make build                build vsyncer in $(BUILD)/"
+	@echo "- make all                  generate and build"
 	@echo "- make install              copy vsyncer into /usr/local/bin"
 	@echo "- make install PREFIX=path  copy vsyncer into \$$PREFIX/bin"
-	@echo "- make all                  all of above"
 	@echo "- make clean                delete $(BUILD)"
 	@echo "- make test                 run unit tests"
 
-all: generate build install
+all: generate build
 
 build: build/vsyncer
 

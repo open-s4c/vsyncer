@@ -52,9 +52,8 @@ RUN cd tmp \
     && git clone https://github.com/open-s4c/vsyncer.git \
     && cd vsyncer \
     && git checkout "${VSYNCER_TAG}" \
-    && make \
-    && ./vsyncer --help \
-    && cp ./vsyncer /usr/bin/vsyncer \
+    && make all install \
+    && build/vsyncer --help \
     && rm -rf /tmp/vsyncer
 
 FROM llvm as final
