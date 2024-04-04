@@ -52,7 +52,7 @@ RUN cd tmp \
     && git clone https://github.com/open-s4c/vsyncer.git \
     && cd vsyncer \
     && git checkout "${VSYNCER_TAG}" \
-    && make all install \
+    && make all install PREFIX=/usr \
     && build/vsyncer --help \
     && rm -rf /tmp/vsyncer
 
