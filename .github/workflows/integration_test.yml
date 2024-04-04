@@ -4,8 +4,9 @@ jobs:
   Run-Checks:
     runs-on: ubuntu-latest
     # TODO: use the built docker from the current branch/commit
-    container: ghcr.io/open-s4c/vsyncer-ci
+    container: ghcr.io/open-s4c/vsyncer-ci:${{ env.GITHUB_REF_NAME }}
     steps:
+      - run: echo "${{ env.GITHUB_REF_NAME }}"
       - name: Check out repository code
         uses: actions/checkout@v4
       - name: Run ctest
