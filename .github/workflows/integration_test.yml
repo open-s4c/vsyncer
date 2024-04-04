@@ -8,6 +8,6 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
       - name: Run ctest
-         run: cd vsyncer/tests
+        run: cd vsyncer/tests
       -  run: cmake ..
       -  run: ctest -V
