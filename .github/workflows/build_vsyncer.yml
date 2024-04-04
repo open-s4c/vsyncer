@@ -1,4 +1,4 @@
-name: Create and publish a Docker image
+name: Create and publish Dockers
 
 on: push
 
@@ -12,6 +12,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        dockerfile: [".github/ci.dockerfile", "Dockerfile"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -37,43 +40,7 @@ jobs:
         uses: docker/build-push-action@v5.1.0
         with:
           context: .
-          # TODO:  push: ${{ github.event_name != 'pull_request' }}
-          push: true
-          build-args: "VSYNCER_TAG=${{ github.sha }}"
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-  build-and-push-ci-image:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: |
-            ghcr.io/open-s4c/vsyncer-ci
-          tags: |
-            type=ref,event=branch
-            type=ref,event=tag
-            type=ref,event=pr
-            type=edge,branch=main
-      - name: Log in to the Container registry
-        # TODO: if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3.0.0
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5.1.0
-        with:
-          context: .
-          file: ".github/ci.dockerfile"
+          file:  ${{ matrix.dockerfile }}
           # TODO:  push: ${{ github.event_name != 'pull_request' }}
           push: true
           build-args: "VSYNCER_TAG=${{ github.sha }}"
