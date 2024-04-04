@@ -1,0 +1,16 @@
+name: Integration Tests
+on:
+    workflow_run:
+        workflows: ['Create and publish a Docker image']
+        types: [completed]
+jobs:
+  Run-Checks:
+    runs-on: ubuntu-latest
+    container: ghcr.io/open-s4c/vsyncer-ci:${{ github.ref }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Run ctest
+         run: cd vsyncer/tests
+      -  run: cmake ..
+      -  run: ctest -V
