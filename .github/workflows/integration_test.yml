@@ -3,7 +3,8 @@ on: [push, pull_request]
 jobs:
   Run-Checks:
     runs-on: ubuntu-latest
-    container: ghcr.io/open-s4c/vsyncer-ci:${{ github.ref }}
+    # TODO: use the built docker from the current branch/commit
+    container: ghcr.io/open-s4c/vsyncer-ci
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
