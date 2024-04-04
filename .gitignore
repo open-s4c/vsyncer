@@ -3,3 +3,4 @@ Testing/
 *_string.go
 *.ll
 *.csv
+.kakrc*
