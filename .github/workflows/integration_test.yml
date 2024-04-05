@@ -11,8 +11,7 @@ jobs:
         uses: actions/checkout@v4
       - run: pwd
       - run: ls
-      - run: vsyncer/ls
       - run: make build
-      - run: cmake -S./test -Bbuild
+      - run: cmake -S./tests -Bbuild
       - run: cmake --build build
       - run: ctest --test-dir build --output-on-failure
