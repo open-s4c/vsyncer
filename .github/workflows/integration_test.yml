@@ -7,6 +7,7 @@ jobs:
     steps:
       - name: Which commit
         run: echo "you are running on this docker ${{ github.sha }}"
+      - run: go version
       - name: Check out and build
         uses: actions/checkout@v4
       - run: pwd
