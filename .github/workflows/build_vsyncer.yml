@@ -57,8 +57,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-and-push-image, set-name]
     # TODO: find the name from the above job
-    container: ghcr.io/open-s4c/vsyncer-ci:${{ env.BRANCH_NAME }}
+    container: ghcr.io/open-s4c/vsyncer-ci:lilith-cmake
     steps:
+      - run: echo "found ${{ env.BRANCH_NAME }}"
       - name: Which commit
         run: echo "Check vsyncer version"
       - run: vsyncer version
