@@ -51,6 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-and-push-image]
     # TODO: using ${{ github.ref_name }} can be problematic if the name contains slashes
+    # e.g. a branch name x/y should be x-y
     container: ghcr.io/open-s4c/vsyncer-ci:${{ github.ref_name }}
     steps:
       - run: echo "found ${{ env.BRANCH_NAME }}"
