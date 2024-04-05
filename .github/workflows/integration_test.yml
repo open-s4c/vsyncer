@@ -9,7 +9,7 @@ jobs:
         run: echo "you are running on this docker ${{ github.sha }}"
       - name: Check out and build
         uses: actions/checkout@v4
-      - run: make
+      - run: make build
       - run: cmake -S./test -Bbuild
       - run: cmake --build build
       - run: ctest --test-dir build --output-on-failure
