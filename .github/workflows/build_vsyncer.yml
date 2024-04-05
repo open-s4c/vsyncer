@@ -51,7 +51,7 @@ jobs:
   set-name:
     runs-on: ubuntu-latest
     steps:
-      - run: BRANCH_NAME=${BRANCH_NAME/\/\-}
+      - run: BRANCH_NAME=${BRANCH_NAME/\//-}
       - run: echo "$BRANCH_NAME"
   Integration-Tests:
     runs-on: ubuntu-latest
