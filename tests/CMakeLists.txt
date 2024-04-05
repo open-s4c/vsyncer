@@ -25,6 +25,7 @@ foreach(SRC ${SOURCES})
   # the vsyncer Docker container (unless VSYNCER_DOCKER=off).
   add_vsyncer_check(NAME ${SRC}-check COMMAND vsyncer check ${SRC})
 endforeach()
+option(VSYNCER_LOCAL "Uses local vsyncer, instead of install one" ON)
 
 include(CTest)
 file(GLOB CLIENTS *.c)
@@ -37,11 +38,20 @@ set(EXPECT_check_sigsev "CheckNotSafe")
 # expectation is inaccurate
 set(EXPECT_check_error "ERROR")
 
+if(VSYNCER_LOCAL)
+    set(VSYNCER_DIR ${CMAKE_SOURCE_DIR}/..)
+    execute_process(COMMAND make build  WORKING_DIRECTORY ${VSYNCER_DIR})
+    set(VSYNCER ${VSYNCER_DIR}/build/vsyncer)
+else()
+    set(VSYNCER vsyncer)
+endif()
+
+
 foreach(CMD ${CMDS})
     foreach(CLIENT ${CLIENTS})
         get_filename_component(TEST_NAME ${CLIENT} NAME_WLE)
         set(TEST_NAME ${CMD}_${TEST_NAME})
-        add_test(NAME ${TEST_NAME} COMMAND vsyncer ${CMD} ${CLIENT})
+        add_test(NAME ${TEST_NAME} COMMAND ${VSYNCER} ${CMD} ${CLIENT})
         if(EXPECT_${TEST_NAME})
             set_property(TEST ${TEST_NAME} PROPERTY PASS_REGULAR_EXPRESSION ${EXPECT_${TEST_NAME}})
         endif()

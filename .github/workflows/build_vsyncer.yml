@@ -58,6 +58,6 @@ jobs:
       - run: vsyncer version
       - name: Check out to run with the tests
         uses: actions/checkout@v4
-      - run: cmake -S./tests -Bbuild
+      - run: cmake -S./tests -Bbuild -DVSYNCER_LOCAL=OFF
       - run: cmake --build build
       - run: ctest --test-dir build --output-on-failure
