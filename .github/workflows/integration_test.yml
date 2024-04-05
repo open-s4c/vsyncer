@@ -3,7 +3,7 @@ on: [push, pull_request]
 jobs:
   Run-Checks:
     runs-on: ubuntu-latest
-    container: ghcr.io/open-s4c/vsyncer-ci:dev
+    container: ghcr.io/open-s4c/vsyncer-ci:lilith-cmake
     steps:
       - name: Which commit
         run: echo "you are running on this docker ${{ github.sha }}"
