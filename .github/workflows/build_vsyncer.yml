@@ -51,8 +51,12 @@ jobs:
   set-name:
     runs-on: ubuntu-latest
     steps:
-      - run: export BRANCH_NAME=${REF_NAME/\//-} && echo "$BRANCH_NAME"
+      #- run: export BRANCH_NAME=${REF_NAME/\//-} && echo "BRANCH_NAME=$BRANCH_NAME >> "
+      - run: |
+        export BRANCH_NAME=${REF_NAME/\//-}
+        echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
       - run: echo "$BRANCH_NAME"
+      - run: echo "${{ env.BRANCH_NAME }}"
   Integration-Tests:
     runs-on: ubuntu-latest
     needs: [build-and-push-image, set-name]
