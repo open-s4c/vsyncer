@@ -29,10 +29,21 @@ endforeach()
 include(CTest)
 file(GLOB CLIENTS *.c)
 set(CMDS compile check optimize)
+
+set(EXPECT_check_hang "CheckNotLive")
+set(EXPECT_check_zero_exec "CheckRejected")
+set(EXPECT_check_sigsev "CheckNotSafe")
+# this test should result in sth else this
+# expectation is inaccurate
+set(EXPECT_check_error "ERROR")
+
 foreach(CMD ${CMDS})
     foreach(CLIENT ${CLIENTS})
         get_filename_component(TEST_NAME ${CLIENT} NAME_WLE)
         set(TEST_NAME ${CMD}_${TEST_NAME})
         add_test(NAME ${TEST_NAME} COMMAND vsyncer ${CMD} ${CLIENT})
+        if(EXPECT_${TEST_NAME})
+            set_property(TEST ${TEST_NAME} PROPERTY PASS_REGULAR_EXPRESSION ${EXPECT_${TEST_NAME}})
+        endif()
     endforeach()
 endforeach()
