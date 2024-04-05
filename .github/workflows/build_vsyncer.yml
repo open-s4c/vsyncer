@@ -5,7 +5,7 @@ on: push
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  BRANCH_NAME: ${{ github.ref_name }}
+  REF_NAME: ${{ github.ref_name }}
 
 jobs:
   build-and-push-image:
@@ -51,7 +51,7 @@ jobs:
   set-name:
     runs-on: ubuntu-latest
     steps:
-      - run: export BRANCH_NAME=${BRANCH_NAME/\//-} && echo "$BRANCH_NAME"
+      - run: export BRANCH_NAME=${REF_NAME/\//-} && echo "$BRANCH_NAME"
       - run: echo "$BRANCH_NAME"
   Integration-Tests:
     runs-on: ubuntu-latest
