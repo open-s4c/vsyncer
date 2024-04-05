@@ -3,12 +3,16 @@ on: [push, pull_request]
 jobs:
   Run-Checks:
     runs-on: ubuntu-latest
+    needs: [build-and-push-image]
     # TODO: use the built docker from the current branch/commit
-    container: ghcr.io/open-s4c/vsyncer-ci:lilith-cmake
+    container: ghcr.io/open-s4c/vsyncer-ci:${{ github.sha }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+      - name: Which commit
+        run: echo "you are running on this docker ${{ github.sha }}"
       - name: Run ctest
-        run: cd vsyncer/tests
-      -  run: cmake ..
-      -  run: ctest -V
+        run: pwd
+      - run: cmake -S./test -Bbuild
+      - run: cmake --build build
+      - run: ctest --test-dir build --output-on-failure
