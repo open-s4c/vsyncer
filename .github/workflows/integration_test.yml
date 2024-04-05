@@ -4,9 +4,8 @@ jobs:
   Run-Checks:
     runs-on: ubuntu-latest
     # TODO: use the built docker from the current branch/commit
-    container: ghcr.io/open-s4c/vsyncer-ci:$GITHUB_REF_NAME
+    container: ghcr.io/open-s4c/vsyncer-ci:lilith-cmake
     steps:
-      - run: echo "$GITHUB_REF_NAME"
       - name: Check out repository code
         uses: actions/checkout@v4
       - name: Run ctest
