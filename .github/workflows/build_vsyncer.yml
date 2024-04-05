@@ -50,7 +50,7 @@ jobs:
   DBG:
     runs-on: ubuntu-latest
     steps:
-      - run: "echo ${{ github.ref }} => ${{ github.ref_name }}"
+      - run: "echo ${{ github.ref }} => ${{ github.ref_name }} => ${GITHUB_REF_NAME##*/}"
   Integration-Tests:
     runs-on: ubuntu-latest
     needs: [build-and-push-image]
