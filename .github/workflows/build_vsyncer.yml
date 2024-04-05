@@ -50,16 +50,16 @@ jobs:
   Run-Checks:
     runs-on: ubuntu-latest
     needs: [build-and-push-image]
+    # we should find away to refer the docker above
     container: ghcr.io/open-s4c/vsyncer-ci:lilith-cmake
     steps:
       - name: Which commit
-        run: echo "you are running on this docker ${{ github.sha }}"
-      - run: go version
-      - name: Check out and build
+        run: echo "Check vsyncer version"
+      - run: vsyncer version
+      - name: Check out to run with the tests
         uses: actions/checkout@v4
       - run: pwd
       - run: ls
-      - run: make build
       - run: cmake -S./tests -Bbuild
       - run: cmake --build build
       - run: ctest --test-dir build --output-on-failure
