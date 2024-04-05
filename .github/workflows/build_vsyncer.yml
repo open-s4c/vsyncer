@@ -47,10 +47,10 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
       # run
-  Run-Checks:
+  Integration-Tests:
     runs-on: ubuntu-latest
     needs: [build-and-push-image]
-    # we should find away to refer the docker above
+    # TODO: find the name from the above job
     container: ghcr.io/open-s4c/vsyncer-ci:lilith-cmake
     steps:
       - name: Which commit
@@ -58,8 +58,6 @@ jobs:
       - run: vsyncer version
       - name: Check out to run with the tests
         uses: actions/checkout@v4
-      - run: pwd
-      - run: ls
       - run: cmake -S./tests -Bbuild
       - run: cmake --build build
       - run: ctest --test-dir build --output-on-failure
