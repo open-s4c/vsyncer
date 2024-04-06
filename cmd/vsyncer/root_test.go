@@ -40,7 +40,7 @@ func loadFiles() {
 	if len(testCFiles) != 0 {
 		return
 	}
-	if val := os.Getenv("TESTS_DIR"); val != "" {
+	if val := os.Getenv("TESTS_DIR"); val != "" { //permit:os.Getenv
 		testsDir = val
 	}
 

@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"os/exec"
 	"path"
 	"regexp"
@@ -38,6 +37,14 @@ type GenMC struct {
 var reExitStatus = regexp.MustCompile("^exit status [0-9]+$")
 
 const genmcErrorCode = 42
+
+func init() {
+	tools.RegEnv("GENMC_CMD", "genmc", "Path to genmc binary")
+	tools.RegEnv("GENMC_OPTIONS", "",
+		"Options passed to GenMC in additon to the default options")
+	tools.RegEnv("GENMC_SET_OPTIONS", "",
+		"Options passed to GenMC, replacing the default options")
+}
 
 // NewGenMC creates a new GenMC object
 func NewGenMC(mm MemoryModel, threads uint, mcPath string) *GenMC {
@@ -180,12 +187,12 @@ func (c *GenMC) getOpts() ([]string, error) {
 		return nil, fmt.Errorf("genmc does not support '%v'", c.mm)
 	}
 
-	if env := os.Getenv("GENMC_OPTIONS"); env != "" {
+	if env := tools.GetEnv("GENMC_OPTIONS"); env != "" {
 		eopts := strings.Split(env, " ")
 		extendedOpts = append(extendedOpts, eopts...)
 	}
 
-	if env := os.Getenv("GENMC_SET_OPTIONS"); env != "" {
+	if env := tools.GetEnv("GENMC_SET_OPTIONS"); env != "" {
 		extendedOpts = strings.Split(env, " ")
 	}
 	return extendedOpts, nil
@@ -235,7 +242,7 @@ func (c *GenMC) Check(ctx context.Context, m DumpableModule) (cr CheckResult, er
 	var genmcCmd []string
 	if c.mcPath == "" {
 		// if the user did not specify a path use the environment var
-		genmcCmd, err = tools.FindCmd("GENMC_CMD", "genmc")
+		genmcCmd, err = tools.FindCmd("GENMC_CMD")
 		if err != nil {
 			return cr, err
 		}

@@ -15,22 +15,33 @@ import (
 	"vsync/logger"
 )
 
+func init() {
+	RegEnv("CLANG_CMD", "clang",
+		"Path to clang or space-separated command to run clang")
+	RegEnv("LLVM_LINK_CMD", "llvm-link",
+		"Path to llvm-link or space-separated command to run llvm-link")
+	RegEnv("CFLAGS", "",
+		"Flags passed to clang when compiling the target file")
+	RegEnv("VSYNCER_GENMC_INCLUDE_PATH", "/usr/local/include/genmc",
+		"Path to genmc headers, e.g., genmc.h")
+}
+
 // Compile calls clang compiler and creates an LLVM IR module using the required compiler options.
 func Compile(args []string, ofile string, addGenmcIncludePath bool) error {
-	clang, err := FindCmd("CLANG_CMD", "clang")
+	clang, err := FindCmd("CLANG_CMD")
 	if err != nil {
 		return err
 	}
 
 	var opts []string
-	if cflags, has := os.LookupEnv("CFLAGS"); has {
+	if cflags := GetEnv("CFLAGS"); cflags != "" {
 		opts = append(opts, strings.Split(cflags, " ")...)
 	}
 
 	genmcIncludes := ""
 	if addGenmcIncludePath {
 		/* check if the user set the path for genmc includes, this is useful when --model-checker-path is used with checker */
-		if envIncPath, has := os.LookupEnv("VSYNCER_GENMC_INCLUDE_PATH"); has {
+		if envIncPath := GetEnv("VSYNCER_GENMC_INCLUDE_PATH"); envIncPath != "" {
 			genmcIncludes = envIncPath
 			logger.Debugf("VSYNCER_GENMC_INCLUDE_PATH is set to=%s\n", genmcIncludes)
 		} else {

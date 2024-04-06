@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Added installation goal to Makefile
+- Added tools.RegEnv which requires envvars to be registered and documented
 
 ### Added
 

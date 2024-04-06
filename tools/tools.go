@@ -7,5 +7,6 @@
 package main
 
 import (
+	_ "github.com/ashanbrown/forbidigo"
 	_ "golang.org/x/tools/cmd/stringer"
 )

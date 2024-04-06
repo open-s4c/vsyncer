@@ -17,5 +17,8 @@ jobs:
     - name: Build
       run: make all
 
+    - name: Lint
+      run: make lint
+
     - name: Test
       run: make test
