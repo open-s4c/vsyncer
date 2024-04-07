@@ -6,7 +6,6 @@
 package tools
 
 import (
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -26,6 +25,32 @@ func init() {
 		"Path to genmc headers, e.g., genmc.h")
 }
 
+func genmcIncludes() (incPath string) {
+	defer func() {
+		logger.Debugf("genmc includes directory is at %s\n", incPath)
+		if _, err := os.Stat(incPath); os.IsNotExist(err) {
+			logger.Fatalf("invalid genmc include path '%s'", incPath)
+		}
+	}()
+
+	// check if the user set the path for genmc includes, this is useful when
+	//  --model-checker-path is used with checker
+	if incPath = GetEnv("VSYNCER_GENMC_INCLUDE_PATH"); incPath != "" {
+		logger.Debugf("VSYNCER_GENMC_INCLUDE_PATH is set to=%s\n", incPath)
+		return
+	}
+
+	if genmcPath, err := exec.LookPath("genmc"); err != nil {
+		logger.Fatal("genmc was not found in PATH")
+	} else {
+		logger.Debugf("genmc is available at %s\n", genmcPath)
+		installBase := filepath.Dir(filepath.Dir(genmcPath))
+		incPath = filepath.Join(installBase, "include", "genmc")
+		return
+	}
+	return
+}
+
 // Compile calls clang compiler and creates an LLVM IR module using the required compiler options.
 func Compile(args []string, ofile string, addGenmcIncludePath bool) error {
 	clang, err := FindCmd("CLANG_CMD")
@@ -38,29 +63,9 @@ func Compile(args []string, ofile string, addGenmcIncludePath bool) error {
 		opts = append(opts, strings.Split(cflags, " ")...)
 	}
 
-	genmcIncludes := ""
 	if addGenmcIncludePath {
-		/* check if the user set the path for genmc includes, this is useful when --model-checker-path is used with checker */
-		if envIncPath := GetEnv("VSYNCER_GENMC_INCLUDE_PATH"); envIncPath != "" {
-			genmcIncludes = envIncPath
-			logger.Debugf("VSYNCER_GENMC_INCLUDE_PATH is set to=%s\n", genmcIncludes)
-		} else {
-			genmc_path, err := exec.LookPath("genmc")
-			if err != nil {
-				log.Fatal("genmc was not found in PATH")
-			}
-			logger.Debugf("genmc is available at %s\n", genmc_path)
-			install_base := filepath.Dir(filepath.Dir(genmc_path))
-			genmcIncludes = filepath.Join(install_base, "include", "genmc")
-
-			if _, err := os.Stat(genmcIncludes); os.IsNotExist(err) {
-				log.Fatal("Unable to find genmc include directory.")
-			}
-		}
-
-		logger.Debugf("genmc includes directory is at %s\n", genmcIncludes)
 		opts = append(opts,
-			"-I", genmcIncludes,
+			"-I", genmcIncludes(),
 			"-D__CONFIG_GENMC_INODE_DATA_SIZE=64",
 		)
 	}
