@@ -373,7 +373,11 @@ func genMCIncludePaths() []string {
 	// The result of FindAllStringSubmatch is a list of pairs:
 	//   [ [complete-match, ()-group], ...]
 	//
-	// We just want the second part of each pair.
+	// For example:
+	//  p[0] = "'-I /some/path'"
+	//  p[1] = "/some/path"
+	//
+	// We just want p[1].
 
 	var incPaths []string
 	for _, p := range paths {
