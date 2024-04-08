@@ -15,7 +15,34 @@ import (
 	"vsync/tools"
 )
 
-var rootCmd cobra.Command
+var rootCmd = cobra.Command{
+	Use:           "vsyncer",
+	Short:         "",
+	Long:          "",
+	SilenceUsage:  true,
+	SilenceErrors: true,
+
+	TraverseChildren: true,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("run 'vsyncer -h' for help")
+	},
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		switch rootFlags.log {
+		case "INFO":
+			logger.SetLevel(logger.INFO)
+		case "WARN":
+			logger.SetLevel(logger.WARN)
+		default:
+			logger.SetLevel(logger.ERROR)
+		}
+		if rootFlags.debug {
+			logger.SetLevel(logger.DEBUG)
+		}
+		if rootFlags.quiet {
+			logger.SetFileDescriptor(nil)
+		}
+	},
+}
 
 func init() {
 	helpMessage :=
@@ -26,35 +53,8 @@ func init() {
 		helpMessage += "\n  " + ev.Name + " " +
 			"(default: \"" + ev.Defv + "\")\n\t" + ev.Desc
 	}
+	rootCmd.Long = helpMessage
 
-	rootCmd = cobra.Command{
-		Use:           "vsyncer",
-		Short:         "",
-		Long:          helpMessage,
-		SilenceUsage:  true,
-		SilenceErrors: true,
-
-		TraverseChildren: true,
-		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("run 'vsyncer -h' for help")
-		},
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			switch rootFlags.log {
-			case "INFO":
-				logger.SetLevel(logger.INFO)
-			case "WARN":
-				logger.SetLevel(logger.WARN)
-			default:
-				logger.SetLevel(logger.ERROR)
-			}
-			if rootFlags.debug {
-				logger.SetLevel(logger.DEBUG)
-			}
-			if rootFlags.quiet {
-				logger.SetFileDescriptor(nil)
-			}
-		},
-	}
 	flags := rootCmd.PersistentFlags()
 	flags.StringVar(&rootFlags.log, "log", "ERROR", "log level (ERROR|INFO|WARN)")
 	flags.StringVarP(&rootFlags.checker, "checker", "c", "genmc", "target checker (genmc|dartagnan|mock)")
