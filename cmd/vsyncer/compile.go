@@ -19,7 +19,7 @@ checker. For all checkers, the following options are passed to clang
    -Xclang -disable-O0-optnone -g -S -emit-llvm
 
 Use CFLAGS to pass further compilation flags and set CLANG to select the path
-to the clang compiler. 
+to the clang compiler.
 `
 
 func init() {
@@ -79,5 +79,5 @@ func compileSources(output string, args []string) error {
 	}
 
 	// The arguments are compilable and exist, so now we do actual compilation.
-	return tools.Compile(args, output, getcheckerID() == GenMC)
+	return tools.Compile(args, output, getCompileOptions(getCheckerID()))
 }

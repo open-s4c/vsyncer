@@ -11,6 +11,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"vsync/checker"
 	"vsync/logger"
 	"vsync/tools"
 )
@@ -97,8 +98,19 @@ func parseCheckerID(s string) checkerID {
 	}
 }
 
-func getcheckerID() checkerID {
+func getCheckerID() checkerID {
 	return parseCheckerID(rootFlags.checker)
+}
+
+func getCompileOptions(id checkerID) func() []string {
+	switch id {
+	case GenMC:
+		return checker.GenMC{}.CompileOptions
+	case Dartagnan:
+		return checker.DartagnanChecker{}.CompileOptions
+	default:
+		return func() []string { return nil }
+	}
 }
 
 var rootFlags struct {

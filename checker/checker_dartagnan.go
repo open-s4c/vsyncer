@@ -157,3 +157,9 @@ If your code uses __VERIFIER_assume(...), be sure you know what you are doing!`
 	}
 	return CheckResult{Status: CheckOK, Output: sout}, nil
 }
+
+func (c DartagnanChecker) CompileOptions() []string {
+	return []string{
+		"-DVSYNC_VERIFICATION_DAT3M",
+	}
+}

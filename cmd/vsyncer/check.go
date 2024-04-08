@@ -77,7 +77,7 @@ func checkRun(_ *cobra.Command, args []string) (err error) {
 		fn        = outputGen("")
 		ts        = time.Now()
 		result    checker.CheckResult
-		checkerID = getcheckerID()
+		checkerID = getCheckerID()
 		mcVersion = ""
 		mm        = checker.ParseMemoryModel(checkFlags.memoryModel)
 		cxt       = context.Background()
