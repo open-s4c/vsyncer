@@ -15,7 +15,6 @@ jobs:
     strategy:
       matrix:
         dockerfile: ["Dockerfile", ".github/ci.dockerfile"]
-        max-parallel: 1
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
