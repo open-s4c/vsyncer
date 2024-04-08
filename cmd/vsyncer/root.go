@@ -12,9 +12,49 @@ import (
 	"github.com/spf13/cobra"
 
 	"vsync/logger"
+	"vsync/tools"
 )
 
+var rootCmd cobra.Command
+
 func init() {
+	helpMessage :=
+		`vsyncer -- Verification and optimization of concurrent code on WMM`
+
+	helpMessage += "\n\nEnvironment Variables:"
+	for _, ev := range tools.GetEnvvars() {
+		helpMessage += "\n  " + ev.Name + " " +
+			"(default: \"" + ev.Defv + "\")\n\t" + ev.Desc
+	}
+
+	rootCmd = cobra.Command{
+		Use:           "vsyncer",
+		Short:         "",
+		Long:          helpMessage,
+		SilenceUsage:  true,
+		SilenceErrors: true,
+
+		TraverseChildren: true,
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("run 'vsyncer -h' for help")
+		},
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			switch rootFlags.log {
+			case "INFO":
+				logger.SetLevel(logger.INFO)
+			case "WARN":
+				logger.SetLevel(logger.WARN)
+			default:
+				logger.SetLevel(logger.ERROR)
+			}
+			if rootFlags.debug {
+				logger.SetLevel(logger.DEBUG)
+			}
+			if rootFlags.quiet {
+				logger.SetFileDescriptor(nil)
+			}
+		},
+	}
 	flags := rootCmd.PersistentFlags()
 	flags.StringVar(&rootFlags.log, "log", "ERROR", "log level (ERROR|INFO|WARN)")
 	flags.StringVarP(&rootFlags.checker, "checker", "c", "genmc", "target checker (genmc|dartagnan|mock)")
@@ -26,35 +66,6 @@ func init() {
 
 	rootCmd.SetHelpCommand(&cobra.Command{Hidden: true})
 	initOptimize()
-}
-
-var rootCmd = cobra.Command{
-	Use:           "vsyncer",
-	Short:         "",
-	Long:          `vsyncer -- Verification and optimization of concurrent code on WMM`,
-	SilenceUsage:  true,
-	SilenceErrors: true,
-
-	TraverseChildren: true,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("run 'vsyncer -h' for help")
-	},
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		switch rootFlags.log {
-		case "INFO":
-			logger.SetLevel(logger.INFO)
-		case "WARN":
-			logger.SetLevel(logger.WARN)
-		default:
-			logger.SetLevel(logger.ERROR)
-		}
-		if rootFlags.debug {
-			logger.SetLevel(logger.DEBUG)
-		}
-		if rootFlags.quiet {
-			logger.SetFileDescriptor(nil)
-		}
-	},
 }
 
 var reExitStatus = regexp.MustCompile("^exit status [0-9]+$")
