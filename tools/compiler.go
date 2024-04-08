@@ -7,8 +7,7 @@ package tools
 
 import (
 	"os"
-	"os/exec"
-	"path/filepath"
+	"regexp"
 	"strings"
 
 	"vsync/logger"
@@ -21,6 +20,8 @@ func init() {
 		"Path to llvm-link or space-separated command to run llvm-link")
 	RegEnv("CFLAGS", "",
 		"Flags passed to clang when compiling the target file")
+
+	RegEnv("GENMC_CMD", "genmc", "Path to genmc binary")
 	RegEnv("GENMC_INCLUDE_PATH", "",
 		"Path to genmc headers, e.g., genmc.h")
 }
@@ -40,14 +41,65 @@ func genmcIncludes() (incPath string) {
 		return
 	}
 
-	if genmcPath, err := exec.LookPath("genmc"); err != nil {
-		logger.Fatal("genmc was not found in PATH")
-	} else {
-		logger.Debugf("genmc is available at %s\n", genmcPath)
-		installBase := filepath.Dir(filepath.Dir(genmcPath))
-		incPath = filepath.Join(installBase, "include", "genmc")
-		return
+	// when GenMC runs with .ll file it prints the path the installed includes
+	// so now we create an empty program, compile it to LLVM IR and call genmc
+	const tinyProgram = `int main() { return 0; }`
+
+	fn, err := Touch("vsyncer-tiny-*.c")
+	if err != nil {
+		logger.Fatalf("could not create temporary file: %v", err)
 	}
+	defer os.Remove(fn)
+
+	err = os.WriteFile(fn, []byte(tinyProgram), 0644)
+	if err != nil {
+		logger.Fatalf("could not write to temporary file: %v", err)
+	}
+
+	clangCmd, err := FindCmd("CLANG_CMD")
+	if err != nil {
+		logger.Fatalf("could not find clang: %v", err)
+	}
+
+	var fnll = fn + ".ll"
+	_, err = RunCmd(clangCmd[0], append(clangCmd[1:],
+		"-S", "-emit-llvm", "-o", fnll, fn), nil)
+	if err != nil {
+		logger.Fatalf("could not run clang: %v", err)
+	}
+	defer os.Remove(fnll)
+
+	genmcCmd, err := FindCmd("GENMC_CMD")
+	if err != nil {
+		logger.Fatalf("could not find genmc: %v", err)
+	}
+
+	output, err := RunCmd(genmcCmd[0], append(genmcCmd[1:], "--", fnll), nil)
+	if err != nil {
+		logger.Fatalf("could not run genmc: %v", err)
+	}
+
+	paths := regexp.MustCompile(`'-I (.*)'`).FindAllStringSubmatch(output, -1)
+	if len(paths) != 2 {
+		logger.Fatalf("unexpected number of paths in genmc message: %v", paths)
+	}
+
+	// There must be 2 paths reported by GenMC:
+	// - the path where GenMC was built
+	// - the path where GenMC is supposed to be installed
+	//
+	// We pick the first path that exists.
+	//
+	// The result of FindAllStringSubmatch is a list of pairs:
+	//   [ [complete-match, ()-group], ...]
+	//
+	// We just want the second part of each pair.
+	if FileExists(paths[0][1]) == nil {
+		incPath = paths[0][1]
+	} else {
+		incPath = paths[1][1]
+	}
+
 	return
 }
 

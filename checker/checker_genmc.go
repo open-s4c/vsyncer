@@ -39,7 +39,6 @@ var reExitStatus = regexp.MustCompile("^exit status [0-9]+$")
 const genmcErrorCode = 42
 
 func init() {
-	tools.RegEnv("GENMC_CMD", "genmc", "Path to genmc binary")
 	tools.RegEnv("GENMC_OPTIONS", "",
 		"Options passed to GenMC in additon to the default options")
 	tools.RegEnv("GENMC_SET_OPTIONS", "",
