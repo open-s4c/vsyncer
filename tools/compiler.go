@@ -22,7 +22,7 @@ func init() {
 }
 
 // Compile calls clang compiler and creates an LLVM IR module using the required compiler options.
-func Compile(args []string, ofile string, compileOptions func() []string) error {
+func Compile(args []string, ofile string, compileOptions []string) error {
 	clang, err := FindCmd("CLANG_CMD")
 	if err != nil {
 		return err
@@ -33,7 +33,7 @@ func Compile(args []string, ofile string, compileOptions func() []string) error 
 		opts = append(opts, strings.Split(cflags, " ")...)
 	}
 
-	opts = append(opts, compileOptions()...)
+	opts = append(opts, compileOptions...)
 	opts = append(opts,
 		"-DVSYNC_VERIFICATION",
 		"-Xclang", "-disable-O0-optnone",

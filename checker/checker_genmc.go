@@ -309,19 +309,15 @@ func (c *GenMC) filterOutput(out string) string {
 	return strings.Join(rlines, "\n")
 }
 
-func (c GenMC) includes() (incPath string) {
-	defer func() {
-		logger.Debugf("genmc includes directory is at %s\n", incPath)
-		if _, err := os.Stat(incPath); os.IsNotExist(err) {
-			logger.Fatalf("invalid genmc include path '%s'", incPath)
-		}
-	}()
-
+func genMCIncludePaths() []string {
 	// check if the user set the path for genmc includes, this is useful when
 	//  --model-checker-path is used with checker
-	if incPath = tools.GetEnv("GENMC_INCLUDE_PATH"); incPath != "" {
+	if incPath := tools.GetEnv("GENMC_INCLUDE_PATH"); incPath != "" {
 		logger.Debugf("GENMC_INCLUDE_PATH is set to=%s\n", incPath)
-		return
+		if err := tools.FileExists(incPath); err != nil {
+			logger.Fatalf("invalid genmc include path '%s': %v", incPath, err)
+		}
+		return []string{"-I", incPath}
 	}
 
 	// when GenMC runs with .ll file it prints the path the installed includes
@@ -371,24 +367,27 @@ func (c GenMC) includes() (incPath string) {
 	// - the path where GenMC was built
 	// - the path where GenMC is supposed to be installed
 	//
-	// We pick the first path that exists.
-	//
 	// The result of FindAllStringSubmatch is a list of pairs:
 	//   [ [complete-match, ()-group], ...]
 	//
 	// We just want the second part of each pair.
-	if tools.FileExists(paths[0][1]) == nil {
-		incPath = paths[0][1]
-	} else {
-		incPath = paths[1][1]
+
+	var incPaths []string
+	for _, p := range paths {
+		if tools.FileExists(p[1]) == nil {
+			incPaths = append(incPaths, "-I", p[1])
+		}
 	}
-	return
+	if len(incPaths) == 0 {
+		logger.Fatal("could not find any genmc include path")
+	}
+	return incPaths
 }
 
-func (c GenMC) CompileOptions() []string {
-	return []string{
-		"-I", c.includes(),
-		"-D__CONFIG_GENMC_INODE_DATA_SIZE=64",
-		"-DVSYNC_VERIFICATION_GENMC",
-	}
+func init() {
+	compileOptions[GenmcID] =
+		append(genMCIncludePaths(),
+			"-D__CONFIG_GENMC_INODE_DATA_SIZE=64",
+			"-DVSYNC_VERIFICATION_GENMC",
+		)
 }

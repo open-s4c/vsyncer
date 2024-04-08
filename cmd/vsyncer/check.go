@@ -137,18 +137,18 @@ func checkRun(_ *cobra.Command, args []string) (err error) {
 	return
 }
 
-func newChecker(cid checkerID, mm checker.MemoryModel) (checker.Tool, error) {
+func newChecker(cid checker.ID, mm checker.MemoryModel) (checker.Tool, error) {
 	if mm == checker.InvalidMemoryModel {
 		err := fmt.Errorf("error: invalid memory model '%v'", mm)
 		return nil, verror(internalError, err)
 	}
 
 	switch cid {
-	case GenMC:
+	case checker.GenmcID:
 		return checker.NewGenMC(mm, 1, checkFlags.mcPath), nil
-	case Dartagnan:
+	case checker.DartagnanID:
 		return checker.NewDartagnan(mm), nil
-	case Mock:
+	case checker.MockID:
 		return checker.GetMock(), nil
 	default:
 		err := errors.New("error: unknown checker")

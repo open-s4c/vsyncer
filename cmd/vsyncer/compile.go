@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"vsync/checker"
 	"vsync/logger"
 	"vsync/tools"
 )
@@ -79,5 +80,5 @@ func compileSources(output string, args []string) error {
 	}
 
 	// The arguments are compilable and exist, so now we do actual compilation.
-	return tools.Compile(args, output, getCompileOptions(getCheckerID()))
+	return tools.Compile(args, output, checker.CompileOptions(getCheckerID()))
 }

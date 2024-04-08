@@ -71,46 +71,8 @@ func init() {
 
 var reExitStatus = regexp.MustCompile("^exit status [0-9]+$")
 
-//go:generate go run golang.org/x/tools/cmd/stringer -type=checkerID
-type checkerID int
-
-const (
-	// Unknown checker
-	Unknown checkerID = iota
-	// Dartagnan checker
-	Dartagnan
-	// GenMC checker
-	GenMC
-	// Mock checker
-	Mock
-)
-
-func parseCheckerID(s string) checkerID {
-	switch s {
-	case "genmc":
-		return GenMC
-	case "dartagnan":
-		return Dartagnan
-	case "mock":
-		return Mock
-	default:
-		return Unknown
-	}
-}
-
-func getCheckerID() checkerID {
-	return parseCheckerID(rootFlags.checker)
-}
-
-func getCompileOptions(id checkerID) func() []string {
-	switch id {
-	case GenMC:
-		return checker.GenMC{}.CompileOptions
-	case Dartagnan:
-		return checker.DartagnanChecker{}.CompileOptions
-	default:
-		return func() []string { return nil }
-	}
+func getCheckerID() checker.ID {
+	return checker.ParseID(rootFlags.checker)
 }
 
 var rootFlags struct {
