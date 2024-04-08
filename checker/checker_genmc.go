@@ -52,14 +52,18 @@ func NewGenMC(mm MemoryModel, threads uint, mcPath string) *GenMC {
 		mm:      mm,
 		mcPath:  mcPath,
 	}
-	genmc.setVersion("genmc")
+	genmcCmd, err := tools.FindCmd("GENMC_CMD")
+	if err != nil {
+		logger.Fatalf("could not find genmc: %v", err)
+	}
+	genmc.setVersion(genmcCmd)
 	return genmc
 }
 
-func (c *GenMC) setVersion(genmcCmd string) {
-	args := []string{"--version"}
+func (c *GenMC) setVersion(genmcCmd []string) {
+	args := append(genmcCmd, "--version")
 	my_ctx := context.Background()
-	ostr, e := tools.RunCmdContext(my_ctx, genmcCmd, args, nil)
+	ostr, e := tools.RunCmdContext(my_ctx, args[0], args[1:], nil)
 	if e == nil {
 		r, err := regexp.Compile("v(\\d+)\\.(\\d+)(\\.(\\d+))?")
 		if err == nil {
