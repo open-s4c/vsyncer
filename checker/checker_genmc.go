@@ -70,20 +70,23 @@ func NewGenMC(mm MemoryModel, threads uint, mcPath string) *GenMC {
 func (c *GenMC) setVersion(genmcCmd []string) {
 	args := append(genmcCmd, "--version")
 	my_ctx := context.Background()
-	ostr, e := tools.RunCmdContext(my_ctx, args[0], args[1:], nil)
-	if e == nil {
-		r, err := regexp.Compile("v(\\d+)\\.(\\d+)(\\.(\\d+))?")
-		if err == nil {
-			grps := r.FindStringSubmatch(ostr)
-			if len(grps) == 5 {
-				c.version.major, e = strconv.Atoi(grps[1])
-				c.version.minor, e = strconv.Atoi(grps[2])
-				// group 3 is the optional dot so we skip it
-				c.version.patch, e = strconv.Atoi(grps[4])
-				logger.Debugf("Detected GenMC version v%d.%d.%d\n", c.version.major, c.version.minor, c.version.patch)
-			}
-		}
+	ostr, err := tools.RunCmdContext(my_ctx, args[0], args[1:], nil)
+	if err != nil {
+		logger.Fatalf("could not run genmc: %v", err)
 	}
+	r, err := regexp.Compile("v(\\d+)\\.(\\d+)(\\.(\\d+))?")
+	if err != nil {
+		logger.Fatalf("could not parse genmc version: %v", err)
+	}
+	grps := r.FindStringSubmatch(ostr)
+	if len(grps) != 5 {
+		logger.Fatalf("unexpected genmc version format: %v", grps)
+	}
+	c.version.major, _ = strconv.Atoi(grps[1])
+	c.version.minor, _ = strconv.Atoi(grps[2])
+	// group 3 is the optional dot so we skip it
+	c.version.patch, _ = strconv.Atoi(grps[4])
+	logger.Debugf("Detected GenMC version v%d.%d.%d\n", c.version.major, c.version.minor, c.version.patch)
 }
 
 func (c *GenMC) GetVersion() string {
@@ -374,9 +377,7 @@ func genMCIncludePaths() []string {
 
 	var incPaths []string
 	for _, p := range paths {
-		if tools.FileExists(p[1]) == nil {
-			incPaths = append(incPaths, "-I", p[1])
-		}
+		incPaths = append(incPaths, "-I", p[1])
 	}
 	if len(incPaths) == 0 {
 		logger.Fatal("could not find any genmc include path")
