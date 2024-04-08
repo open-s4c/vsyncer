@@ -21,7 +21,7 @@ func init() {
 		"Path to llvm-link or space-separated command to run llvm-link")
 	RegEnv("CFLAGS", "",
 		"Flags passed to clang when compiling the target file")
-	RegEnv("VSYNCER_GENMC_INCLUDE_PATH", "/usr/local/include/genmc",
+	RegEnv("GENMC_INCLUDE_PATH", "",
 		"Path to genmc headers, e.g., genmc.h")
 }
 
@@ -35,8 +35,8 @@ func genmcIncludes() (incPath string) {
 
 	// check if the user set the path for genmc includes, this is useful when
 	//  --model-checker-path is used with checker
-	if incPath = GetEnv("VSYNCER_GENMC_INCLUDE_PATH"); incPath != "" {
-		logger.Debugf("VSYNCER_GENMC_INCLUDE_PATH is set to=%s\n", incPath)
+	if incPath = GetEnv("GENMC_INCLUDE_PATH"); incPath != "" {
+		logger.Debugf("GENMC_INCLUDE_PATH is set to=%s\n", incPath)
 		return
 	}
 
