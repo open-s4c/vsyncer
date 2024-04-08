@@ -157,3 +157,10 @@ If your code uses __VERIFIER_assume(...), be sure you know what you are doing!`
 	}
 	return CheckResult{Status: CheckOK, Output: sout}, nil
 }
+
+func init() {
+	compileOptions[DartagnanID] =
+		[]string{
+			"-DVSYNC_VERIFICATION_DAT3M",
+		}
+}

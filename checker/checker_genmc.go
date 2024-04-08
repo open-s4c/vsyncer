@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"path"
 	"regexp"
@@ -18,6 +19,12 @@ import (
 	"vsync/logger"
 	"vsync/tools"
 )
+
+func init() {
+	tools.RegEnv("GENMC_CMD", "genmc", "Path to genmc binary")
+	tools.RegEnv("GENMC_INCLUDE_PATH", "",
+		"Path to genmc headers, e.g., genmc.h")
+}
 
 type Version struct {
 	major int
@@ -300,4 +307,87 @@ func (c *GenMC) filterOutput(out string) string {
 		}
 	}
 	return strings.Join(rlines, "\n")
+}
+
+func genMCIncludePaths() []string {
+	// check if the user set the path for genmc includes, this is useful when
+	//  --model-checker-path is used with checker
+	if incPath := tools.GetEnv("GENMC_INCLUDE_PATH"); incPath != "" {
+		logger.Debugf("GENMC_INCLUDE_PATH is set to=%s\n", incPath)
+		if err := tools.FileExists(incPath); err != nil {
+			logger.Fatalf("invalid genmc include path '%s': %v", incPath, err)
+		}
+		return []string{"-I", incPath}
+	}
+
+	// when GenMC runs with .ll file it prints the path the installed includes
+	// so now we create an empty program, compile it to LLVM IR and call genmc
+	const tinyProgram = `int main() { return 0; }`
+
+	fn, err := tools.Touch("vsyncer-tiny-*.c")
+	if err != nil {
+		logger.Fatalf("could not create temporary file: %v", err)
+	}
+	defer os.Remove(fn)
+
+	err = os.WriteFile(fn, []byte(tinyProgram), 0644)
+	if err != nil {
+		logger.Fatalf("could not write to temporary file: %v", err)
+	}
+
+	clangCmd, err := tools.FindCmd("CLANG_CMD")
+	if err != nil {
+		logger.Fatalf("could not find clang: %v", err)
+	}
+
+	var fnll = fn + ".ll"
+	_, err = tools.RunCmd(clangCmd[0], append(clangCmd[1:],
+		"-S", "-emit-llvm", "-o", fnll, fn), nil)
+	if err != nil {
+		logger.Fatalf("could not run clang: %v", err)
+	}
+	defer os.Remove(fnll)
+
+	genmcCmd, err := tools.FindCmd("GENMC_CMD")
+	if err != nil {
+		logger.Fatalf("could not find genmc: %v", err)
+	}
+
+	output, err := tools.RunCmd(genmcCmd[0], append(genmcCmd[1:], "--", fnll), nil)
+	if err != nil {
+		logger.Fatalf("could not run genmc: %v", err)
+	}
+
+	paths := regexp.MustCompile(`'-I (.*)'`).FindAllStringSubmatch(output, -1)
+	if len(paths) != 2 {
+		logger.Fatalf("unexpected number of paths in genmc message: %v", paths)
+	}
+
+	// There must be 2 paths reported by GenMC:
+	// - the path where GenMC was built
+	// - the path where GenMC is supposed to be installed
+	//
+	// The result of FindAllStringSubmatch is a list of pairs:
+	//   [ [complete-match, ()-group], ...]
+	//
+	// We just want the second part of each pair.
+
+	var incPaths []string
+	for _, p := range paths {
+		if tools.FileExists(p[1]) == nil {
+			incPaths = append(incPaths, "-I", p[1])
+		}
+	}
+	if len(incPaths) == 0 {
+		logger.Fatal("could not find any genmc include path")
+	}
+	return incPaths
+}
+
+func init() {
+	compileOptions[GenmcID] =
+		append(genMCIncludePaths(),
+			"-D__CONFIG_GENMC_INODE_DATA_SIZE=64",
+			"-DVSYNC_VERIFICATION_GENMC",
+		)
 }

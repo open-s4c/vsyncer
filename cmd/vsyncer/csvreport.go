@@ -17,7 +17,7 @@ const fileMode = 0600
 
 type csvReport struct {
 	name          string
-	checker       checkerID
+	checker       checker.ID
 	memoryModel   checker.MemoryModel
 	duration      time.Duration
 	status        checker.CheckStatus

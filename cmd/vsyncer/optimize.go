@@ -82,7 +82,7 @@ func optimizeRun(_ *cobra.Command, args []string) error {
 		return verror(internalError, err)
 	}
 
-	chkr, err := newChecker(parseCheckerID(rootFlags.checker), mm)
+	chkr, err := newChecker(checker.ParseID(rootFlags.checker), mm)
 	if err != nil {
 		return err
 	}
