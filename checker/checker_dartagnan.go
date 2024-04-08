@@ -6,7 +6,6 @@ package checker
 import (
 	"context"
 	"fmt"
-	"os"
 	"os/exec"
 	"strings"
 
@@ -19,6 +18,16 @@ const fileMode = 0600
 // DartagnanChecker wraps the Dartagnan model checker by Hernan Ponce de Leon et al.
 type DartagnanChecker struct {
 	mm MemoryModel
+}
+
+func init() {
+	tools.RegEnv("JAVA_CMD", "java", "Path to java binary")
+
+	tools.RegEnv("DARTAGNAN_HOME", "/usr/share/dat3m", "Path to DAT3M_HOME")
+	tools.RegEnv("DARTAGNAN_OPTIONS", "",
+		"Options passed to Dartagnan in additon to the default options")
+	tools.RegEnv("DARTAGNAN_SET_OPTIONS", "",
+		"Options passed to Dartagnan, replacing the default options")
 }
 
 // NewDartagnan creates a new checker using Dartagnan model checker.
@@ -53,7 +62,7 @@ func (c *DartagnanChecker) prepare(m DumpableModule, testFn string) error {
 		return err
 	}
 
-	llvmLink, err := tools.FindCmd("LLVM_LINK_CMD", "llvm-link")
+	llvmLink, err := tools.FindCmd("LLVM_LINK_CMD")
 	if err != nil {
 		return fmt.Errorf("could not find llvm-link command: %v", err)
 	}
@@ -68,10 +77,7 @@ func (c *DartagnanChecker) prepare(m DumpableModule, testFn string) error {
 }
 
 func (c *DartagnanChecker) run(ctx context.Context, testFn string) (string, error) {
-	dartagnanHome := "/dat3m"
-	if env := os.Getenv("DARTAGNAN_HOME"); env != "" {
-		dartagnanHome = env
-	}
+	dartagnanHome := tools.GetEnv("DARTAGNAN_HOME")
 
 	opts := []string{
 		"--property=program_spec,liveness",
@@ -82,11 +88,11 @@ func (c *DartagnanChecker) run(ctx context.Context, testFn string) (string, erro
 		fmt.Sprintf("%s/cat/%s", dartagnanHome, models[c.mm].cat),
 	}
 
-	if env := os.Getenv("DARTAGNAN_OPTIONS"); env != "" {
+	if env := tools.GetEnv("DARTAGNAN_OPTIONS"); env != "" {
 		opts = append(opts, strings.Split(env, " ")...)
 	}
 
-	if env := os.Getenv("DARTAGNAN_SET_OPTIONS"); env != "" {
+	if env := tools.GetEnv("DARTAGNAN_SET_OPTIONS"); env != "" {
 		opts = strings.Split(env, " ")
 	}
 
@@ -95,7 +101,7 @@ func (c *DartagnanChecker) run(ctx context.Context, testFn string) (string, erro
 		testFn,
 	}, opts...)
 
-	javaCmd, err := tools.FindCmd("DARTAGNAN_JAVA_CMD", "java")
+	javaCmd, err := tools.FindCmd("JAVA_CMD")
 	if err != nil {
 		return "", err
 	}

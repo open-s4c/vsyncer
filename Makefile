@@ -41,12 +41,18 @@ $(BUILD)/vsyncer: build-dir $(shell find -name '*.go')
 ################################################################################
 # support goals
 ################################################################################
-.PHONY: generate lint test fmt-c
+.PHONY: generate lint test fmt-c forbidigo revive
 
 generate:
 	go generate ./...
 
-lint:
+lint: forbidigo
+
+forbidigo:
+	@go run github.com/ashanbrown/forbidigo \
+		-set_exit_status os.LookupEnv os.Getenv -- ./...
+
+revive:
 	revive -exclude vendor/... ./...
 
 test:
