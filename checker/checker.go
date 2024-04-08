@@ -46,3 +46,37 @@ type CheckResult struct {
 	Output        string
 	NumExecutions int
 }
+
+//go:generate go run golang.org/x/tools/cmd/stringer -type=ID
+type ID int
+
+const (
+	// Unknown checker
+	UnknownID ID = iota
+	// Dartagnan checker
+	DartagnanID
+	// GenMC checker
+	GenmcID
+	// Mock checker
+	MockID
+)
+
+func ParseID(s string) ID {
+	switch s {
+	case "genmc":
+		return GenmcID
+	case "dartagnan":
+		return DartagnanID
+	case "mock":
+		return MockID
+	default:
+		return UnknownID
+	}
+}
+
+var compileOptions = map[ID][]string{}
+
+func CompileOptions(id ID) []string {
+	return compileOptions[id]
+
+}

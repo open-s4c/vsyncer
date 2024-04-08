@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Dockerfile with GenMC v0.10.1-a (from open-s4c/genmc)
+- Dockerfile with Dat3m v4.0.0
 
 ## [2.0.0] - 2024-01-26
 
