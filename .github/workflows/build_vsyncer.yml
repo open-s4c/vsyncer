@@ -57,7 +57,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ghcr.io/open-s4c/vsyncer
+            ghcr.io/open-s4c/vsyncer-ci
           tags: |
             type=ref,event=branch
             type=ref,event=tag
@@ -85,7 +85,7 @@ jobs:
   Integration-Tests:
     runs-on: ubuntu-latest
     needs: [ build-and-push-ci-docker]
-    container: ghcr.io/open-s4c/vsyncer-ci:${{ github.sha }}
+    container: ghcr.io/open-s4c/vsyncer-ci:sha-${{ github.sha }}
     steps:
       - run: echo "found ${{ env.BRANCH_NAME }}"
       - name: Which commit
