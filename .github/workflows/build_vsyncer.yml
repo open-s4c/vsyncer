@@ -95,7 +95,7 @@ jobs:
         uses: actions/checkout@v4
       - run: cmake -S./tests -Bbuild -DVSYNCER_LOCAL=OFF -DVSYNCER_CHECK=OFF
       - run: cmake --build build
-      - run: ctest --test-dir build -V
+      - run: ctest --test-dir build --output-on-failure
       - name: Upload Report
         uses: actions/upload-artifact@v4
         if: always()
