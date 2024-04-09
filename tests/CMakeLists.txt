@@ -16,16 +16,6 @@ include(CTest)
 # Include vsyncer.cmake to have add_vsyncer_check available.
 include(../cmake/vsyncer.cmake)
 
-# Since we do not build the source files, we have to reference the source files
-# at the source directory
-# set(SOURCES ok.c t1.c cmpxchg.c)
-# list(TRANSFORM SOURCES PREPEND ${CMAKE_CURRENT_SOURCE_DIR}/)
-# foreach(SRC ${SOURCES})
-#   # add_vsyncer_check works as a normal add_test, but the command runs inside
-#   # the vsyncer Docker container (unless VSYNCER_DOCKER=off).
-#   add_vsyncer_check(NAME ${SRC}-check COMMAND vsyncer check ${SRC})
-# endforeach()
-
 option(VSYNCER_LOCAL "Uses local vsyncer, instead of install one" ON)
 set(LOG ${CMAKE_CURRENT_BINARY_DIR}/log.csv)
 
@@ -48,8 +38,17 @@ if(VSYNCER_LOCAL)
     set(VSYNCER_DIR ${CMAKE_SOURCE_DIR}/..)
     execute_process(COMMAND make build  WORKING_DIRECTORY ${VSYNCER_DIR})
     set(VSYNCER ${VSYNCER_DIR}/build/vsyncer)
-    set(CHECKERS genmc9)
+    set(CHECKERS genmc)
     set(PATH_genmc genmc)
+    # Since we do not build the source files, we have to reference the source files
+    # at the source directory
+    set(SOURCES ok.c t1.c cmpxchg.c)
+    list(TRANSFORM SOURCES PREPEND ${CMAKE_CURRENT_SOURCE_DIR}/)
+    foreach(SRC ${SOURCES})
+      # add_vsyncer_check works as a normal add_test, but the command runs inside
+      # the vsyncer Docker container (unless VSYNCER_DOCKER=off).
+      add_vsyncer_check(NAME ${SRC}-check COMMAND vsyncer check ${SRC})
+    endforeach()
 else()
     set(VSYNCER vsyncer)
     set(CHECKERS genmc9 genmc10 dartagnan)
