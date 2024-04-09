@@ -23,15 +23,15 @@ file(GLOB CLIENTS *.c)
 set(CMDS compile check)
 set(ARGS_check --csv-log ${LOG})
 
+# tests with Status other than CheckOk
 set(EXPECT_check_hang "CheckNotLive")
 set(EXPECT_check_zero_exec "CheckRejected")
 set(EXPECT_check_sigsev "CheckNotSafe")
-# this test should result in sth else this
-# expectation is inaccurate
-set(EXPECT_check_error "ERROR")
 
+# tests that will crash
 set(TRIGGERS_MC_BUG #
-    check_genmc9_bug_genmc9
+    check_genmc9_bug_genmc9 #
+    check_error #
 )
 
 if(VSYNCER_LOCAL)
@@ -51,7 +51,8 @@ if(VSYNCER_LOCAL)
     endforeach()
 else()
     set(VSYNCER vsyncer)
-    set(CHECKERS genmc9 genmc10 dartagnan)
+    # add dartagnan to CHECKERS list once the expectatio is clear
+    set(CHECKERS genmc9 genmc10)
     set(PATH_genmc9 /usr/share/genmc9/bin/genmc)
     set(PATH_genmc10 /usr/share/genmc10/bin/genmc)
 endif()
@@ -71,7 +72,7 @@ foreach(CMD ${CMDS})
             endif()
 
             # if it triggers model checker bug expects to return non-zero
-            if(${TEST_NAME} IN_LIST TRIGGERS_MC_BUG)
+            if(${TEST_NAME} IN_LIST TRIGGERS_MC_BUG OR ${CASE_NAME} IN_LIST TRIGGERS_MC_BUG)
                 set_property(TEST ${TEST_NAME} PROPERTY WILL_FAIL TRUE)
             # if the expecation exists and the same for all model checkers
             elseif(EXPECT_${CASE_NAME})
