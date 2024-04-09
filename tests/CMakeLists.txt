@@ -65,7 +65,7 @@ foreach(CMD ${CMDS})
             set(CASE_NAME ${CMD}_${CASE_NAME})
             set(TEST_NAME ${CASE_NAME}_${MC})
 
-            if(${MC} EQUAL dartagnan)
+            if("${MC}" STREQUAL "dartagnan")
                 add_test(NAME ${TEST_NAME} COMMAND ${VSYNCER} --checker ${MC} ${CMD} ${ARGS_${CMD}} ${CLIENT})
             else()
                 add_test(NAME ${TEST_NAME} COMMAND env GENMC_CMD=${PATH_${MC}} ${VSYNCER} ${CMD} ${ARGS_${CMD}} ${CLIENT})
