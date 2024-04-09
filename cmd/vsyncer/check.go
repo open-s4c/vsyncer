@@ -22,7 +22,6 @@ var checkFlags = struct {
 	opts        []string
 	memoryModel string
 	csvFile     string
-	mcPath      string
 	timeout     time.Duration
 }{}
 
@@ -38,7 +37,6 @@ var checkCmd = cobra.Command{
 func init() {
 	flags := checkCmd.PersistentFlags()
 	flags.StringVar(&checkFlags.csvFile, "csv-log", "", "CSV file to append the final result to ")
-	flags.StringVarP(&checkFlags.mcPath, "model-checker-path", "P", "", "The path under which the model checker is found")
 	flags.DurationVar(&checkFlags.timeout, "timeout", 0, "Check timeout, e.g., 1s for 1 second, 1m for 1 minute.\nCheck will fail if the model checker did not finish within the given time.\ntimeout 0 is equivalent to no timeout")
 	addCheckFlags(flags)
 	addMutateFlags(flags)
@@ -145,7 +143,7 @@ func newChecker(cid checker.ID, mm checker.MemoryModel) (checker.Tool, error) {
 
 	switch cid {
 	case checker.GenmcID:
-		return checker.NewGenMC(mm, 1, checkFlags.mcPath), nil
+		return checker.NewGenMC(mm, 1), nil
 	case checker.DartagnanID:
 		return checker.NewDartagnan(mm), nil
 	case checker.MockID:
