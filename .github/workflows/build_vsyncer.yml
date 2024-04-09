@@ -96,3 +96,8 @@ jobs:
       - run: cmake -S./tests -Bbuild -DVSYNCER_LOCAL=OFF
       - run: cmake --build build
       - run: ctest --test-dir build --output-on-failure
+      - name: Upload Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: check-report
+          path: build/log.csv
