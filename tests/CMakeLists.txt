@@ -40,6 +40,10 @@ set(EXPECT_check_sigsev "CheckNotSafe")
 # expectation is inaccurate
 set(EXPECT_check_error "ERROR")
 
+set(TRIGGERS_MC_BUG #
+    check_genmc9_bug_genmc9
+)
+
 if(VSYNCER_LOCAL)
     set(VSYNCER_DIR ${CMAKE_SOURCE_DIR}/..)
     execute_process(COMMAND make build  WORKING_DIRECTORY ${VSYNCER_DIR})
@@ -63,8 +67,11 @@ foreach(CMD ${CMDS})
 
             add_test(NAME ${TEST_NAME} COMMAND env GENMC_CMD=${PATH_${MC}} ${VSYNCER} ${CMD} ${ARGS_${CMD}} ${CLIENT})
 
+            # if it triggers model checker bug expects to return non-zero
+            if(${TEST_NAME} IN_LIST ${TRIGGERS_MC_BUG})
+                set_property(TEST ${TEST_NAME} PROPERTY WILL_FAIL TRUE)
             # if the expecation exists and the same for all model checkers
-            if(EXPECT_${CASE_NAME})
+            elseif(EXPECT_${CASE_NAME})
                 set_property(TEST ${TEST_NAME} PROPERTY PASS_REGULAR_EXPRESSION ${EXPECT_${CASE_NAME}})
             # if the expecation exists for a particular model checker
             elseif(EXPECT_${TEST_NAME})
