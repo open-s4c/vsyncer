@@ -48,7 +48,7 @@ if(VSYNCER_LOCAL)
     set(VSYNCER_DIR ${CMAKE_SOURCE_DIR}/..)
     execute_process(COMMAND make build  WORKING_DIRECTORY ${VSYNCER_DIR})
     set(VSYNCER ${VSYNCER_DIR}/build/vsyncer)
-    set(CHECKERS genmc)
+    set(CHECKERS genmc9)
     set(PATH_genmc genmc)
 else()
     set(VSYNCER vsyncer)
@@ -68,7 +68,7 @@ foreach(CMD ${CMDS})
             add_test(NAME ${TEST_NAME} COMMAND env GENMC_CMD=${PATH_${MC}} ${VSYNCER} ${CMD} ${ARGS_${CMD}} ${CLIENT})
 
             # if it triggers model checker bug expects to return non-zero
-            if(${TEST_NAME} IN_LIST ${TRIGGERS_MC_BUG})
+            if(${TEST_NAME} IN_LIST TRIGGERS_MC_BUG)
                 set_property(TEST ${TEST_NAME} PROPERTY WILL_FAIL TRUE)
             # if the expecation exists and the same for all model checkers
             elseif(EXPECT_${CASE_NAME})
