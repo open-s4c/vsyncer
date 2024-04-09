@@ -160,7 +160,9 @@ If your code uses __VERIFIER_assume(...), be sure you know what you are doing!`
 
 func init() {
 	compileOptions[DartagnanID] =
-		[]string{
-			"-DVSYNC_VERIFICATION_DAT3M",
+		func() []string {
+			return []string{
+				"-DVSYNC_VERIFICATION_DAT3M",
+			}
 		}
 }

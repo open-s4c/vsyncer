@@ -383,8 +383,10 @@ func genMCIncludePaths() []string {
 
 func init() {
 	compileOptions[GenmcID] =
-		append(genMCIncludePaths(),
-			"-D__CONFIG_GENMC_INODE_DATA_SIZE=64",
-			"-DVSYNC_VERIFICATION_GENMC",
-		)
+		func() []string {
+			return append(genMCIncludePaths(),
+				"-D__CONFIG_GENMC_INODE_DATA_SIZE=64",
+				"-DVSYNC_VERIFICATION_GENMC",
+			)
+		}
 }

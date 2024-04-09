@@ -80,5 +80,6 @@ func compileSources(output string, args []string) error {
 	}
 
 	// The arguments are compilable and exist, so now we do actual compilation.
-	return tools.Compile(args, output, checker.CompileOptions(getCheckerID()))
+	getOptions := checker.CompileOptions(getCheckerID())
+	return tools.Compile(args, output, getOptions())
 }
