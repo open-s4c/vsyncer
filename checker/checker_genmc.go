@@ -9,7 +9,6 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"path"
 	"regexp"
 	"strconv"
 	"strings"
@@ -37,7 +36,6 @@ type GenMC struct {
 	threads uint
 	mm      MemoryModel
 	results []CheckResult
-	mcPath  string
 	version Version
 }
 
@@ -53,11 +51,10 @@ func init() {
 }
 
 // NewGenMC creates a new GenMC object
-func NewGenMC(mm MemoryModel, threads uint, mcPath string) *GenMC {
+func NewGenMC(mm MemoryModel, threads uint) *GenMC {
 	genmc := &GenMC{
 		threads: threads,
 		mm:      mm,
-		mcPath:  mcPath,
 	}
 	genmcCmd, err := tools.FindCmd("GENMC_CMD")
 	if err != nil {
@@ -253,15 +250,10 @@ func (c *GenMC) Check(ctx context.Context, m DumpableModule) (cr CheckResult, er
 	defer cancel()
 
 	var genmcCmd []string
-	if c.mcPath == "" {
-		// if the user did not specify a path use the environment var
-		genmcCmd, err = tools.FindCmd("GENMC_CMD")
-		if err != nil {
-			return cr, err
-		}
-	} else {
-		// otherwise look into the path the user provided
-		genmcCmd = []string{path.Join(c.mcPath, "genmc")}
+	// if the user did not specify a path use the environment var
+	genmcCmd, err = tools.FindCmd("GENMC_CMD")
+	if err != nil {
+		return cr, err
 	}
 
 	extendedOpts, err := c.getOpts()
