@@ -98,6 +98,7 @@ jobs:
       - run: ctest --test-dir build -V
       - name: Upload Report
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: check-report
           path: build/log.csv
