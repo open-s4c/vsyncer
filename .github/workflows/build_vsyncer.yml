@@ -108,10 +108,8 @@ jobs:
     needs: [ build-and-push-ci-docker]
     container: ghcr.io/open-s4c/vsyncer-ci:sha-${{ github.sha }}
     steps:
-      - run: echo "found ${{ env.BRANCH_NAME }}"
-      - name: Which commit
-        run: echo "Check vsyncer version"
-      - run: vsyncer version
+      - name: print vsyncer version
+        run: vsyncer version
       - name: Check out to run with the tests
         uses: actions/checkout@v4
       - run: cmake -S./tests -Bbuild -DVSYNCER_LOCAL=OFF -DVSYNCER_CHECK=OFF
