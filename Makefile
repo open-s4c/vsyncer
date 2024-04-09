@@ -1,8 +1,8 @@
 PREFIX ?= /usr/local
-TAG     = $(shell git describe --always --tags --dirty)
-FLAGS   = -ldflags '-X main.version=$(TAG)'
-BUILD   = build
-
+TAG     	= $(shell git describe --always --tags --dirty)
+FLAGS   	= -ldflags '-X main.version=$(TAG)'
+BUILD   	= build
+GENERATED 	= $(shell find -name *_string.go)
 ################################################################################
 # user goals
 ################################################################################
@@ -25,7 +25,7 @@ build: generate build/vsyncer
 install: build
 	install $(BUILD)/vsyncer $(PREFIX)/bin/
 clean:
-	rm -rf $(BUILD)
+	rm -rf $(BUILD) $(GENERATED)
 
 ################################################################################
 # build goals
