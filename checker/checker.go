@@ -74,9 +74,15 @@ func ParseID(s string) ID {
 	}
 }
 
-var compileOptions = map[ID][]string{}
+type OptionsFunc func() []string
 
-func CompileOptions(id ID) []string {
-	return compileOptions[id]
+var compileOptions = map[ID]OptionsFunc{}
 
+func emptyOptions() []string { return nil }
+
+func CompileOptions(id ID) OptionsFunc {
+	if foo, has := compileOptions[id]; has {
+		return foo
+	}
+	return emptyOptions
 }
