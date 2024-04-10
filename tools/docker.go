@@ -14,10 +14,15 @@ import (
 )
 
 const (
-	docker = "docker"
-	image  = "ghcr.io/open-s4c/vsyncer"
-	tag    = "latest"
+	docker    = "docker"
+	image     = "ghcr.io/open-s4c/vsyncer"
+	tag       = "latest"
+	useDocker = "false"
 )
+
+func init() {
+	RegEnv("VSYNCER_DOCKER", useDocker, "Use vsyncer Docker container for GenMC, Dat3m, etc")
+}
 
 func DockerRun(ctx context.Context, args []string, volumes []string) error {
 	var (

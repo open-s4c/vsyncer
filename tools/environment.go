@@ -21,7 +21,7 @@ func FindCmd(key string) ([]string, error) {
 	}
 
 	cmds := strings.Split(val, " ")
-	if IsDefaultEnv(key) { // and we should use docker
+	if IsDefaultEnv(key) && GetEnv("VSYNCER_DOCKER") == "true" {
 		return append([]string{"vsyncer", "docker", "--"}, cmds...), nil
 	}
 	return cmds, err
