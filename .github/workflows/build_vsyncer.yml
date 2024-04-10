@@ -31,6 +31,7 @@ jobs:
 
           - name: "vsyncer-ci"
             path: "docker/ci.dockerfile"
+            vsyncer_tag: "${{ github.sha }}"
 
     steps:
       - name: Checkout repository
@@ -70,7 +71,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             "REGISTRY=ghcr.io/open-s4c/"
-            "VSYNCER_TAG=${{ github.sha }}"
+            "VSYNCER_TAG=${{ matrix.container.vsyncer_tag }}"
 
   # Run integration tests inside the created vsyncer-ci container
   integration-tests:
