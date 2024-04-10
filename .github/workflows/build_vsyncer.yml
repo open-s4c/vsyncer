@@ -13,9 +13,9 @@ jobs:
       contents: read
       packages: write
     strategy:
+      fail-fast: true
+      max-parallel: 1
       matrix:
-        #fail-fast: "true"
-        max-parallel: 1
         dockerfile:
           - name: "vsyncer-base"
             path: "docker/base.dockerfile"
@@ -189,3 +189,4 @@ jobs:
 #        with:
 #          name: check-report
 #          path: build/log.csv
+
