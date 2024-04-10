@@ -1,10 +1,10 @@
 ARG TAG=latest
-ARG REPO=""
+ARG REGISTRY=""
 
 ################################################################################
 # dat3m_builder
 ################################################################################
-FROM ${REPO}vsyncer-base:${TAG} as dat3m_builder
+FROM ${REGISTRY}vsyncer-base:${TAG} as dat3m_builder
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \

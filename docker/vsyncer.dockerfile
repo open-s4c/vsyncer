@@ -1,9 +1,9 @@
 ARG TAG=latest
-ARG REPO=""
+ARG REGISTRY=""
 
-FROM ${REPO}vsyncer-base:${TAG} as base
-FROM ${REPO}vsyncer-genmc:${TAG} as genmc
-FROM ${REPO}vsyncer-dat3m:${TAG} as dat3m
+FROM ${REGISTRY}vsyncer-base:${TAG} as base
+FROM ${REGISTRY}vsyncer-genmc:${TAG} as genmc
+FROM ${REGISTRY}vsyncer-dat3m:${TAG} as dat3m
 
 ################################################################################
 # vsyncer_builder

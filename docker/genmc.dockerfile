@@ -1,10 +1,10 @@
 ARG TAG=latest
-ARG REPO=""
+ARG REGISTRY=""
 
 ################################################################################
 # genmc_builder
 ################################################################################
-FROM ${REPO}vsyncer-base:${TAG} as genmc_builder
+FROM ${REGISTRY}vsyncer-base:${TAG} as genmc_builder
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \

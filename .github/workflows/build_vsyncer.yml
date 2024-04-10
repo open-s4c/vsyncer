@@ -69,7 +69,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            "REPO=ghcr.io/open-s4c/"
+            "REGISTRY=ghcr.io/open-s4c/"
             "VSYNCER_TAG=${{ github.sha }}"
 
   # Run integration tests inside the created vsyncer-ci container
