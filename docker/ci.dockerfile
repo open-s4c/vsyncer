@@ -1,5 +1,5 @@
-ARG TAG=main
-ARG REPO=ghcr.io/open-s4c/
+ARG TAG=latest
+ARG REPO=""
 
 FROM ${REPO}vsyncer:${TAG}
 

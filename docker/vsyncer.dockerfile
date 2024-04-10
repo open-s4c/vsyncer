@@ -1,5 +1,5 @@
-ARG TAG=main
-ARG REPO=ghcr.io/open-s4c/
+ARG TAG=latest
+ARG REPO=""
 
 FROM ${REPO}vsyncer-base:${TAG} as base
 FROM ${REPO}vsyncer-genmc:${TAG} as genmc
@@ -17,7 +17,7 @@ RUN apt-get update \
      git \
  && rm -rf /var/lib/apt/lists/*
 
-ARG VSYNCER_TAG=main
+ARG VSYNCER_TAG=latest
 RUN cd /tmp \
  && ls -la \
  && rm -rf vsyncer \

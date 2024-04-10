@@ -1,12 +1,12 @@
-ARG TAG=main
-ARG REPO=ghcr.io/open-s4c/
+ARG TAG=latest
+ARG REPO=""
 
 ################################################################################
 # dat3m_builder
 ################################################################################
 FROM ${REPO}vsyncer-base:${TAG} as dat3m_builder
 
-RUN apt-get update  \
+RUN apt-get update \
  && apt-get install -y --no-install-recommends \
      graphviz \
      maven \
