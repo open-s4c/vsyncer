@@ -39,11 +39,12 @@ jobs:
 
           tags: |
             type=ref,event=branch
-            type=ref,event=base_ref
+            type=base_ref,event=branch
             type=ref,event=tag
             type=ref,event=pr
             type=edge,branch=main
             #type=sha,format=long
+            type=raw,dev
 
       - name: Log in to the Container registry
         # TODO: if: github.event_name != 'pull_request'
