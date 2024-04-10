@@ -19,6 +19,8 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 RUN cd /tmp \
+ && ls -la \
+ && rm -r vsyncer \
  && git clone https://github.com/open-s4c/vsyncer.git \
  && cd vsyncer \
  && git checkout "$VSYNCER_TAG"
