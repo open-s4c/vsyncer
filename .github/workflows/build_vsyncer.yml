@@ -19,23 +19,18 @@ jobs:
         container:
           - name: "vsyncer-base"
             path: "docker/base.dockerfile"
-            tag: "current"
 
           - name: "vsyncer-genmc"
             path: "docker/genmc.dockerfile"
-            tag: "current"
 
           - name: "vsyncer-dat3m"
             path: "docker/dat3m.dockerfile"
-            tag: "current"
 
           - name: "vsyncer"
             path: "docker/vsyncer.dockerfile"
-            tag: "current"
 
           - name: "vsyncer-ci"
             path: "docker/ci.dockerfile"
-            tag: "sha-${{ github.sha }}"
 
     steps:
       - name: Checkout repository
@@ -49,7 +44,7 @@ jobs:
 
           tags: |
             type=edge,branch=main
-            type=raw,${{ matrix.container.tag }}
+            type=raw,latest
             type=sha,format=long
 
       - name: Log in to the Container registry
@@ -75,7 +70,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             "REPO=ghcr.io/open-s4c/"
-            "TAG=${{ matrix.container.tag }}"
             "VSYNCER_TAG=${{ github.sha }}"
 
   # Run integration tests inside the created vsyncer-ci container

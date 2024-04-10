@@ -1,7 +1,6 @@
-ARG TAG=latest
 ARG REPO=""
 
-FROM ${REPO}vsyncer:${TAG}
+FROM ${REPO}vsyncer:sha-${VSYNCER_TAG}
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     cmake \
