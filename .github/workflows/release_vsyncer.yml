@@ -1,0 +1,39 @@
+name: Build and release vsyncer
+
+on:
+  release:
+    types:
+      - published
+      - edited
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Setup
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.20'
+
+      - name: Build
+        run: |
+          make build \
+            TAG=${{ github.event.release.tag_name }} \
+            DOCKER_TAG=${{ github.event.release.tag_name }} \
+            USE_DOCKER="true"
+
+          cp build/vsyncer build/vsyncer-${{ github.event.release.tag_name }}-linux-x86_64
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/vsyncer-${{ github.event.release.tag_name }}-linux-x86_64
