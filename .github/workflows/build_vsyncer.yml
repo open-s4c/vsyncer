@@ -35,7 +35,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/open-s4c/vsyncer/${{ matrix.dockerfile.name }}
+          images: ghcr.io/open-s4c/${{ matrix.dockerfile.name }}
 
           tags: |
             type=ref,event=branch
