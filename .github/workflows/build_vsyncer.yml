@@ -73,7 +73,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            "TAG=$TAG"
+            "TAG=${{ env.TAG }}"
             "VSYNCER_TAG=${{ github.sha }}"
 
 
