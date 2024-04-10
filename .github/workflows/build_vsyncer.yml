@@ -42,6 +42,7 @@ jobs:
             type=ref,event=tag
             type=ref,event=pr
             type=edge,branch=main
+            type=edge,branch=dev
             #type=sha,format=long
 
       - name: Log in to the Container registry
