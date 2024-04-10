@@ -87,7 +87,8 @@ func startReaders(c *exec.Cmd) error {
 
 const (
 	docker = "docker"
-	image  = "ghcr.io/open-s4c/vsyncer:dev"
+	image  = "ghcr.io/open-s4c/vsyncer"
+	tag    = "latest"
 )
 
 func dockerRun(_ *cobra.Command, args []string) error {
@@ -129,7 +130,7 @@ func dockerRun(_ *cobra.Command, args []string) error {
 	cmd = append(cmd, "-w", cwd)
 
 	// docker image
-	cmd = append(cmd, image)
+	cmd = append(cmd, fmt.Sprintf("%s:%s", image, tag))
 
 	// user arguments
 	cmd = append(cmd, args...)

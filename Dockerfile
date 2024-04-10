@@ -9,9 +9,6 @@ FROM ${FROM_IMAGE} as clang
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
      clang \
-     libclang-dev \
-     git \
-     ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
 ################################################################################
@@ -21,10 +18,12 @@ FROM clang as builder
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
+     libclang-dev \
      llvm \
      llvm-dev \
      git \
      libz-dev \
+     ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
 ################################################################################
@@ -137,3 +136,5 @@ ENV PATH="/usr/share/genmc9/bin:$PATH"
 
 # vsyncer
 COPY --from=vsyncer_builder /usr/bin/vsyncer /usr/bin/vsyncer
+
+# done
