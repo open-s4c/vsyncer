@@ -5,8 +5,8 @@ TAG        ?= $(shell git describe --always --tags --dirty)
 DOCKER_TAG ?= "latest"
 USE_DOCKER ?= "false"
 LDFLAGS     = -X main.version=$(TAG) \
-              -X tools.useDocker=$(USE_DOCKER) \
-              -X tools.dockerTag=$(DOCKER_TAG)
+              -X vsync/tools.useDocker=$(USE_DOCKER) \
+              -X vsync/tools.dockerTag=$(DOCKER_TAG)
 ################################################################################
 # user goals
 ################################################################################
