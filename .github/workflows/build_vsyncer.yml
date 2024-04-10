@@ -42,7 +42,7 @@ jobs:
             type=ref,event=tag
             type=ref,event=pr
             type=edge,branch=main
-            type=sha,format=long
+            #type=sha,format=long
 
       - name: Log in to the Container registry
         # TODO: if: github.event_name != 'pull_request'
