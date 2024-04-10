@@ -68,7 +68,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            "TAG=$(echo ${{ github.ref_name }} | tr "/" "-")"
+            "TAG=$(echo $GITHUB_REF_NAME | tr '/' '-')"
             "VSYNCER_TAG=${{ github.sha }}"
 
 
