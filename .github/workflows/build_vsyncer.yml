@@ -29,9 +29,9 @@ jobs:
             path: "docker/dat3m.dockerfile"
             tag: current
 
-          #- name: "vsyncer"
-          #  path: "docker/vsyncer.dockerfile"
-          #  tag: current
+          - name: "vsyncer"
+            path: "docker/vsyncer.dockerfile"
+            tag: current
 
           #- name: "vsyncer-ci"
           #  path: "docker/ci.dockerfile"
@@ -83,7 +83,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            "TAG=dev"
+            "TAG=${{ matrix.container.tag }}"
             "VSYNCER_TAG=${{ github.sha }}"
 
 
