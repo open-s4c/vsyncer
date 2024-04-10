@@ -1,16 +1,17 @@
 # This is a multi-stage dockerfile to build vsyncer and its dependencies
 
-################################################################################
-# base image
-################################################################################
 ARG FROM_IMAGE=ubuntu:22.04
-FROM ${FROM_IMAGE} as base
+
+################################################################################
+# builder image
+################################################################################
+FROM ${FROM_IMAGE} as builder
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-     llvm \
      clang \
      libclang-dev \
+     llvm \
      llvm-dev \
      git \
      libz-dev \
@@ -20,7 +21,7 @@ RUN apt-get update \
 ################################################################################
 # genmc_builder
 ################################################################################
-FROM base as genmc_builder
+FROM builder as genmc_builder
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
@@ -33,17 +34,17 @@ RUN apt-get update \
 # the final image.
 
 RUN cd /tmp \
- && git clone https://github.com/open-s4c/genmc.git genmc9 \
+ && git clone --branch "v0.9" --depth 1\
+     https://github.com/open-s4c/genmc.git genmc9 \
  && cd genmc9 \
- && git checkout "v0.9" \
  && autoreconf --install \
  && ./configure --prefix=/usr/share/genmc9 \
  && make install -j8
 
 RUN cd /tmp \
- && git clone https://github.com/open-s4c/genmc.git genmc10 \
+ && git clone --branch "v0.10.1-a" --depth 1 \
+     https://github.com/open-s4c/genmc.git genmc10 \
  && cd genmc10 \
- && git checkout "v0.10.1-a" \
  && autoreconf --install \
  && ./configure --prefix=/usr/share/genmc10 \
  && make install -j8
@@ -51,7 +52,7 @@ RUN cd /tmp \
 ################################################################################
 # dat3m_builder
 ################################################################################
-FROM base as dat3m_builder
+FROM builder as dat3m_builder
 
 RUN apt-get update  \
  && apt-get install -y --no-install-recommends \
@@ -77,7 +78,7 @@ RUN cd /tmp/dat3m \
 ################################################################################
 # vsyncer_builder
 ################################################################################
-FROM base as vsyncer_builder
+FROM builder as vsyncer_builder
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
@@ -101,26 +102,22 @@ RUN cd /tmp/vsyncer \
 ################################################################################
 # vsyncer image
 ################################################################################
-FROM base as final
+FROM ${FROM_IMAGE} as final
 
-# basic tools
+# tools
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-     less vim \
- && rm -rf /var/lib/apt/lists/*
-
-# dat3m
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
+     clang \
+     less \
+     vim \
      openjdk-17-jre \
  && rm -rf /var/lib/apt/lists/*
 
+# dat3m
 COPY --from=dat3m_builder /usr/share/dat3m /usr/share/dat3m
 RUN ln -s /usr/share/dat3m/dartagnan/target/libs/*.so /usr/lib/
 ENV DAT3M_HOME=/usr/share/dat3m
 ENV DAT3M_OUTPUT="/tmp/dat3m"
-#ENV CFLAGS="-I$DAT3M_HOME/include"
-#ENV OPTFLAGS="-mem2reg -sroa -early-cse -indvars -loop-unroll -fix-irreducible -loop-simplify -simplifycfg -gvn"
 
 # genmc
 COPY --from=genmc_builder /usr/share/genmc9 /usr/share/genmc9
@@ -129,3 +126,5 @@ ENV PATH="/usr/share/genmc9/bin:$PATH"
 
 # vsyncer
 COPY --from=vsyncer_builder /usr/bin/vsyncer /usr/bin/vsyncer
+
+# done
