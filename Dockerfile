@@ -1,26 +1,36 @@
 # This is a multi-stage dockerfile to build vsyncer and its dependencies
 
 ################################################################################
-# base image
+# clang image
 ################################################################################
 ARG FROM_IMAGE=ubuntu:22.04
-FROM ${FROM_IMAGE} as base
+FROM ${FROM_IMAGE} as clang
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+     clang \
+     libclang-dev \
+     git \
+     ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+################################################################################
+# builder image
+################################################################################
+FROM clang as builder
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
      llvm \
-     clang \
-     libclang-dev \
      llvm-dev \
      git \
      libz-dev \
-     ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
 ################################################################################
 # genmc_builder
 ################################################################################
-FROM base as genmc_builder
+FROM builder as genmc_builder
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
@@ -51,7 +61,7 @@ RUN cd /tmp \
 ################################################################################
 # dat3m_builder
 ################################################################################
-FROM base as dat3m_builder
+FROM builder as dat3m_builder
 
 RUN apt-get update  \
  && apt-get install -y --no-install-recommends \
@@ -77,7 +87,7 @@ RUN cd /tmp/dat3m \
 ################################################################################
 # vsyncer_builder
 ################################################################################
-FROM base as vsyncer_builder
+FROM builder as vsyncer_builder
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
@@ -101,7 +111,7 @@ RUN cd /tmp/vsyncer \
 ################################################################################
 # vsyncer image
 ################################################################################
-FROM base as final
+FROM clang as final
 
 # basic tools
 RUN apt-get update \
@@ -119,8 +129,6 @@ COPY --from=dat3m_builder /usr/share/dat3m /usr/share/dat3m
 RUN ln -s /usr/share/dat3m/dartagnan/target/libs/*.so /usr/lib/
 ENV DAT3M_HOME=/usr/share/dat3m
 ENV DAT3M_OUTPUT="/tmp/dat3m"
-#ENV CFLAGS="-I$DAT3M_HOME/include"
-#ENV OPTFLAGS="-mem2reg -sroa -early-cse -indvars -loop-unroll -fix-irreducible -loop-simplify -simplifycfg -gvn"
 
 # genmc
 COPY --from=genmc_builder /usr/share/genmc9 /usr/share/genmc9
