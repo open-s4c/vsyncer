@@ -52,7 +52,6 @@ jobs:
             type=ref,event=tag
             type=ref,event=pr
             type=edge,branch=main
-            #type=sha,format=long
             type=raw,${{ matrix.container.tag }}
 
       - name: Log in to the Container registry
