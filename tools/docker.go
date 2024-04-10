@@ -11,13 +11,14 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
+	"strings"
 )
 
 const (
-	docker    = "docker"
-	image     = "ghcr.io/open-s4c/vsyncer"
-	tag       = "latest"
-	useDocker = "false"
+	dockerPath  = "docker"
+	dockerImage = "ghcr.io/open-s4c/vsyncer"
+	dockerTag   = "latest"
+	useDocker   = "false"
 )
 
 func init() {
@@ -26,7 +27,8 @@ func init() {
 
 func DockerRun(ctx context.Context, args []string, volumes []string) error {
 	var (
-		cmd = []string{"run", "--rm"}
+		cmd      = []string{"run", "--rm"}
+		rootless = false
 	)
 	// find current user
 	u, err := user.Current()
@@ -38,18 +40,34 @@ func DockerRun(ctx context.Context, args []string, volumes []string) error {
 	}
 
 	// check docker installation
-	// is docker installed?
-	//
-	// are we running outside docker?
-	//
-	// is it rootless?
-	// docker info -f "{{println .SecurityOptions}}" | grep rootless
-	//
-	// if not rooless do I have permission?
-	// check if user in docker group, otherwise should we request sudo?
+	if err := exec.CommandContext(ctx, dockerPath).Run(); err != nil {
+		return fmt.Errorf("could not run docker: %v", err)
+	}
 
-	// decide whether we should set uid:gid
-	cmd = append(cmd, "-u", fmt.Sprintf("%v:%v", u.Uid, u.Gid))
+	// are we running outside docker?
+	if FileExists("/.dockerenv") == nil {
+		return fmt.Errorf("running inside docker. Set VSYNCER_DOCKER=false")
+	}
+
+	// is it rootless?
+	if output, err := exec.CommandContext(ctx, dockerPath, "info", "-f",
+		"{{println .SecurityOptions}}").Output(); err != nil {
+		return fmt.Errorf("could not run docker: %v", err)
+	} else {
+		rootless = strings.Contains(string(output), "rootless")
+	}
+
+	// if not rooless do I have permission?
+	if !rootless {
+		// check if user in docker group, otherwise should we request sudo?
+		if output, err := exec.CommandContext(ctx, "id", "-Gn").Output(); err != nil {
+			return fmt.Errorf("could get user groups: %v", err)
+		} else if !strings.Contains(string(output), "docker") {
+			return fmt.Errorf("user is not in docker group")
+		}
+
+		cmd = append(cmd, "-u", fmt.Sprintf("%v:%v", u.Uid, u.Gid))
+	}
 
 	// mount current directory
 	cmd = append(cmd, "-v", fmt.Sprintf("%s:%s", cwd, cwd))
@@ -62,13 +80,13 @@ func DockerRun(ctx context.Context, args []string, volumes []string) error {
 	cmd = append(cmd, "-w", cwd)
 
 	// docker image
-	cmd = append(cmd, fmt.Sprintf("%s:%s", image, tag))
+	cmd = append(cmd, fmt.Sprintf("%s:%s", dockerImage, dockerTag))
 
 	// user arguments
 	cmd = append(cmd, args...)
 
 	// create command, start output readers and start
-	c := exec.CommandContext(ctx, docker, cmd...)
+	c := exec.CommandContext(ctx, dockerPath, cmd...)
 	if err := startReaders(c); err != nil {
 		return err
 	}
