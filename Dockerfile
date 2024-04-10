@@ -1,8 +1,4 @@
 # This is a multi-stage dockerfile to build vsyncer and its dependencies
-# resulting in ubuntu container with the fo
-#
-# base
-#
 
 ################################################################################
 # base image
