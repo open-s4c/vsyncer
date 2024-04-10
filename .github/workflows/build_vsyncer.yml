@@ -48,9 +48,6 @@ jobs:
           images: ghcr.io/open-s4c/${{ matrix.container.name }}
 
           tags: |
-            type=ref,event=branch
-            type=ref,event=tag
-            type=ref,event=pr
             type=edge,branch=main
             type=raw,${{ matrix.container.tag }}
             type=sha,format=long
