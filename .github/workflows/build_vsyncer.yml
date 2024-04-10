@@ -39,10 +39,10 @@ jobs:
 
           tags: |
             type=ref,event=branch
+            type=ref,event=base_ref
             type=ref,event=tag
             type=ref,event=pr
             type=edge,branch=main
-            type=edge,branch=dev
             #type=sha,format=long
 
       - name: Log in to the Container registry
@@ -71,9 +71,7 @@ jobs:
 
           # TODO:  push: ${{ github.event_name != 'pull_request' }}
           push: true
-          tags: |
-            ${{ steps.meta.outputs.tags }}
-            dev
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             "TAG=dev"
