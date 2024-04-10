@@ -58,7 +58,7 @@ jobs:
       - name: Set TAG properly
         id: tag
         run: |
-          echo ::set-output name=TAG::${GITHUB_REF#\//_/}
+          echo ::set-output name=TAG::"$(echo ${{ github.ref_name }} | tr '/' '-')"
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5.1.0
