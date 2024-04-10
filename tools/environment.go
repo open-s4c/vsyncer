@@ -16,7 +16,15 @@ import (
 // If not set returns a default value.
 func FindCmd(key string) ([]string, error) {
 	val, err := LookupEnv(key)
-	return strings.Split(val, " "), err
+	if err != nil {
+		return nil, err
+	}
+
+	cmds := strings.Split(val, " ")
+	if IsDefaultEnv(key) { // and we should use docker
+		return append([]string{"vsyncer", "docker", "--"}, cmds...), nil
+	}
+	return cmds, err
 }
 
 type Envvar struct {
@@ -67,6 +75,17 @@ func LookupEnv(key string) (string, error) {
 	} else {
 		return v.Defv, nil
 	}
+}
+
+// IsDefaultEnv returns true if the variable value is default, ie, the variable
+// was not set by the user.
+func IsDefaultEnv(key string) bool {
+	if _, has := envVars[key]; !has {
+		logger.Fatalf("Envvar '%s' not registered", key)
+	}
+
+	_, has := os.LookupEnv(key) //permit:os.LookupEnv
+	return !has
 }
 
 // GetEnvvars returns list of all registered environment variables.
