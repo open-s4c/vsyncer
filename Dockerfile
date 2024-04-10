@@ -1,5 +1,4 @@
 # This is a multi-stage dockerfile to build vsyncer and its dependencies
-ARG TAG=main
 
 ################################################################################
 # base image
@@ -87,10 +86,11 @@ RUN apt-get update \
      git \
  && rm -rf /var/lib/apt/lists/*
 
+ARG VSYNCER_TAG=main
 RUN cd /tmp \
  && git clone https://github.com/open-s4c/vsyncer.git \
  && cd vsyncer \
- && git checkout "$TAG"
+ && git checkout "$VSYNCER_TAG"
 
 RUN cd /tmp/vsyncer \
  && make build \
