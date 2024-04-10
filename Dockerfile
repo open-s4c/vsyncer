@@ -1,23 +1,15 @@
 # This is a multi-stage dockerfile to build vsyncer and its dependencies
 
-################################################################################
-# clang image
-################################################################################
 ARG FROM_IMAGE=ubuntu:22.04
-FROM ${FROM_IMAGE} as clang
-
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-     clang \
- && rm -rf /var/lib/apt/lists/*
 
 ################################################################################
 # builder image
 ################################################################################
-FROM clang as builder
+FROM ${FROM_IMAGE} as builder
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
+     clang \
      libclang-dev \
      llvm \
      llvm-dev \
@@ -110,20 +102,18 @@ RUN cd /tmp/vsyncer \
 ################################################################################
 # vsyncer image
 ################################################################################
-FROM clang as final
+FROM ${FROM_IMAGE} as final
 
-# basic tools
+# tools
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-     less vim \
- && rm -rf /var/lib/apt/lists/*
-
-# dat3m
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
+     clang \
+     less \
+     vim \
      openjdk-17-jre \
  && rm -rf /var/lib/apt/lists/*
 
+# dat3m
 COPY --from=dat3m_builder /usr/share/dat3m /usr/share/dat3m
 RUN ln -s /usr/share/dat3m/dartagnan/target/libs/*.so /usr/lib/
 ENV DAT3M_HOME=/usr/share/dat3m
