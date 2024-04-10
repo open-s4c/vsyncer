@@ -55,6 +55,11 @@ jobs:
       - name: Setup docker buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Set TAG properly
+        id: tag
+        run: |
+          echo ::set-output name=TAG::${GITHUB_REF#\//_/}
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5.1.0
         with:
@@ -68,7 +73,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            "TAG=$(echo $GITHUB_REF_NAME | tr '/' '-')"
+            "TAG=${{ steps.tag.outputs.TAG }}"
             "VSYNCER_TAG=${{ github.sha }}"
 
 
