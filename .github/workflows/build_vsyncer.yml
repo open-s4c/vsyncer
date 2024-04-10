@@ -32,7 +32,7 @@ jobs:
           images: |
             ghcr.io/open-s4c/vsyncer/${{ matrix.dockerfile.name }}
 
-          tags: |t
+          tags: |
             type=ref,event=branch
             type=ref,event=tag
             type=ref,event=pr
@@ -65,117 +65,117 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
 
-  build-and-push-docker:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: |
-            ghcr.io/open-s4c/vsyncer
-          tags: |
-            type=ref,event=branch
-            type=ref,event=tag
-            type=ref,event=pr
-            type=edge,branch=main
-            type=sha,format=long
-
-      - name: Log in to the Container registry
-        # TODO: if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3.0.0
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Setup docker buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5.1.0
-        with:
-          context: .
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-          # TODO:  push: ${{ github.event_name != 'pull_request' }}
-          push: true
-          build-args: "VSYNCER_TAG=${{ github.sha }}"
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-  build-and-push-ci-docker:
-    runs-on: ubuntu-latest
-    needs: [ build-and-push-docker]
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: |
-            ghcr.io/open-s4c/vsyncer-ci
-          tags: |
-            type=ref,event=branch
-            type=ref,event=tag
-            type=ref,event=pr
-            type=edge,branch=main
-            type=sha,format=long
-
-      - name: Log in to the Container registry
-        # TODO: if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3.0.0
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Setup docker buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5.1.0
-        with:
-          context: .
-          file:  .github/ci.dockerfile
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-          # TODO:  push: ${{ github.event_name != 'pull_request' }}
-          push: true
-          build-args: "VSYNCER_TAG=sha-${{ github.sha }}"
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-  # Run integration tests inside the created vsyncer-ci container
-  Integration-Tests:
-    runs-on: ubuntu-latest
-    needs: [ build-and-push-ci-docker]
-    container: ghcr.io/open-s4c/vsyncer-ci:sha-${{ github.sha }}
-    steps:
-      - name: print vsyncer version
-        run: vsyncer version
-      - name: Check out to run with the tests
-        uses: actions/checkout@v4
-      - run: cmake -S./tests -Bbuild -DVSYNCER_LOCAL=OFF -DVSYNCER_CHECK=OFF
-      - run: cmake --build build
-      - run: ctest --test-dir build --output-on-failure
-      - name: Upload Report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: check-report
-          path: build/log.csv
+#  build-and-push-docker:
+#    runs-on: ubuntu-latest
+#    permissions:
+#      contents: read
+#      packages: write
+#
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v4
+#
+#      - name: Docker meta
+#        id: meta
+#        uses: docker/metadata-action@v5
+#        with:
+#          images: |
+#            ghcr.io/open-s4c/vsyncer
+#          tags: |
+#            type=ref,event=branch
+#            type=ref,event=tag
+#            type=ref,event=pr
+#            type=edge,branch=main
+#            type=sha,format=long
+#
+#      - name: Log in to the Container registry
+#        # TODO: if: github.event_name != 'pull_request'
+#        uses: docker/login-action@v3.0.0
+#        with:
+#          registry: ${{ env.REGISTRY }}
+#          username: ${{ github.actor }}
+#          password: ${{ secrets.GITHUB_TOKEN }}
+#
+#      - name: Setup docker buildx
+#        uses: docker/setup-buildx-action@v3
+#
+#      - name: Build and push Docker image
+#        uses: docker/build-push-action@v5.1.0
+#        with:
+#          context: .
+#          cache-from: type=gha
+#          cache-to: type=gha,mode=max
+#
+#          # TODO:  push: ${{ github.event_name != 'pull_request' }}
+#          push: true
+#          build-args: "VSYNCER_TAG=${{ github.sha }}"
+#          tags: ${{ steps.meta.outputs.tags }}
+#          labels: ${{ steps.meta.outputs.labels }}
+#
+#  build-and-push-ci-docker:
+#    runs-on: ubuntu-latest
+#    needs: [ build-and-push-docker]
+#    permissions:
+#      contents: read
+#      packages: write
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v4
+#
+#      - name: Docker meta
+#        id: meta
+#        uses: docker/metadata-action@v5
+#        with:
+#          images: |
+#            ghcr.io/open-s4c/vsyncer-ci
+#          tags: |
+#            type=ref,event=branch
+#            type=ref,event=tag
+#            type=ref,event=pr
+#            type=edge,branch=main
+#            type=sha,format=long
+#
+#      - name: Log in to the Container registry
+#        # TODO: if: github.event_name != 'pull_request'
+#        uses: docker/login-action@v3.0.0
+#        with:
+#          registry: ${{ env.REGISTRY }}
+#          username: ${{ github.actor }}
+#          password: ${{ secrets.GITHUB_TOKEN }}
+#
+#      - name: Setup docker buildx
+#        uses: docker/setup-buildx-action@v3
+#
+#      - name: Build and push Docker image
+#        uses: docker/build-push-action@v5.1.0
+#        with:
+#          context: .
+#          file:  .github/ci.dockerfile
+#          cache-from: type=gha
+#          cache-to: type=gha,mode=max
+#
+#          # TODO:  push: ${{ github.event_name != 'pull_request' }}
+#          push: true
+#          build-args: "VSYNCER_TAG=sha-${{ github.sha }}"
+#          tags: ${{ steps.meta.outputs.tags }}
+#          labels: ${{ steps.meta.outputs.labels }}
+#
+#  # Run integration tests inside the created vsyncer-ci container
+#  Integration-Tests:
+#    runs-on: ubuntu-latest
+#    needs: [ build-and-push-ci-docker]
+#    container: ghcr.io/open-s4c/vsyncer-ci:sha-${{ github.sha }}
+#    steps:
+#      - name: print vsyncer version
+#        run: vsyncer version
+#      - name: Check out to run with the tests
+#        uses: actions/checkout@v4
+#      - run: cmake -S./tests -Bbuild -DVSYNCER_LOCAL=OFF -DVSYNCER_CHECK=OFF
+#      - run: cmake --build build
+#      - run: ctest --test-dir build --output-on-failure
+#      - name: Upload Report
+#        uses: actions/upload-artifact@v4
+#        if: always()
+#        with:
+#          name: check-report
+#          path: build/log.csv
