@@ -19,15 +19,15 @@ jobs:
         container:
           - name: "vsyncer-base"
             path: "docker/base.dockerfile"
-            tag: ${{ github.base_name }}
+            tag: latest
 
           - name: "vsyncer-genmc"
             path: "docker/genmc.dockerfile"
-            tag: ${{ github.base_name }}
+            tag: latest
 
           - name: "vsyncer-dat3m"
             path: "docker/dat3m.dockerfile"
-            tag: ${{ github.base_name }}
+            tag: latest
 
           - name: "vsyncer"
             path: "docker/vsyncer.dockerfile"
