@@ -67,10 +67,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args:
-            - "VSYNCER_TAG=${{ github.sha }}"
-            - "BASE_TAG=${{ github.sha }}"
-            - "TAG=${{ github.sha }}"
+          build-args: "TAG=${{ github.sha }}"
 
 
 #  build-and-push-docker:
