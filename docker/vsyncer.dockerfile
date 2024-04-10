@@ -17,7 +17,7 @@ RUN apt-get update \
      git \
  && rm -rf /var/lib/apt/lists/*
 
-ARG VSYNCER_TAG=latest
+ARG VSYNCER_TAG=main
 RUN cd /tmp \
  && ls -la \
  && rm -rf vsyncer \
