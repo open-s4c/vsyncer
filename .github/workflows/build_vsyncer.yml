@@ -28,6 +28,7 @@ jobs:
 
           - name: "vsyncer"
             path: "docker/vsyncer.dockerfile"
+            vsyncer_tag: "${{ github.sha }}"
 
           - name: "vsyncer-ci"
             path: "docker/ci.dockerfile"
