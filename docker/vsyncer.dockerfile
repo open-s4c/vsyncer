@@ -1,4 +1,3 @@
-ARG VSYNCER_TAG=main
 ARG TAG=main
 ARG REPO=ghcr.io/open-s4c/
 
@@ -18,12 +17,13 @@ RUN apt-get update \
      git \
  && rm -rf /var/lib/apt/lists/*
 
+ARG VSYNCER_TAG=main
 RUN cd /tmp \
  && ls -la \
  && rm -rf vsyncer \
  && git clone https://github.com/open-s4c/vsyncer.git \
  && cd vsyncer \
- && git checkout "$VSYNCER_TAG"
+ && git checkout "${VSYNCER_TAG}"
 
 RUN cd /tmp/vsyncer \
  && make build \

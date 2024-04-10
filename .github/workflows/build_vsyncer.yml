@@ -16,17 +16,27 @@ jobs:
       fail-fast: true
       max-parallel: 1
       matrix:
-        dockerfile:
+        container:
           - name: "vsyncer-base"
             path: "docker/base.dockerfile"
+            tag: ${{ github.base_name }}
+
           - name: "vsyncer-genmc"
             path: "docker/genmc.dockerfile"
+            tag: ${{ github.base_name }}
+
           - name: "vsyncer-dat3m"
             path: "docker/dat3m.dockerfile"
+            tag: ${{ github.base_name }}
+
           - name: "vsyncer"
             path: "docker/vsyncer.dockerfile"
+            tag: latest
+
           - name: "vsyncer-ci"
             path: "docker/ci.dockerfile"
+            tag: latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -35,7 +45,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/open-s4c/${{ matrix.dockerfile.name }}
+          images: ghcr.io/open-s4c/${{ matrix.container.name }}
 
           tags: |
             type=ref,event=branch
@@ -43,7 +53,7 @@ jobs:
             type=ref,event=pr
             type=edge,branch=main
             #type=sha,format=long
-            type=raw,dev
+            type=raw,${{ matrix.container.tag }}
 
       - name: Log in to the Container registry
         # TODO: if: github.event_name != 'pull_request'
@@ -65,7 +75,7 @@ jobs:
         uses: docker/build-push-action@v5.1.0
         with:
           context: .
-          file: ${{ matrix.dockerfile.path }}
+          file: ${{ matrix.container.path }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
