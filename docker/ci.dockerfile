@@ -1,5 +1,7 @@
-ARG VSYNCER_TAG=main
-FROM ghcr.io/open-s4c/vsyncer:$VSYNCER_TAG
+ARG TAG=main
+ARG REPO=ghcr.io/open-s4c/
+
+FROM ${REPO}vsyncer:${TAG}
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     cmake \

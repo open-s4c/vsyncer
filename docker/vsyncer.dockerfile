@@ -1,10 +1,10 @@
-ARG REPO=ghcr.io/open-s4c/vsyncer
 ARG TAG=main
+ARG REPO=ghcr.io/open-s4c/
 
 ################################################################################
 # vsyncer_builder
 ################################################################################
-FROM ${REPO}/base:${TAG} as vsyncer_builder
+FROM ${REPO}vsyncer-base:${TAG} as vsyncer_builder
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
@@ -13,11 +13,10 @@ RUN apt-get update \
      git \
  && rm -rf /var/lib/apt/lists/*
 
-ARG VSYNCER_TAG=main
 RUN cd /tmp \
  && git clone https://github.com/open-s4c/vsyncer.git \
  && cd vsyncer \
- && git checkout "$VSYNCER_TAG"
+ && git checkout "$TAG"
 
 RUN cd /tmp/vsyncer \
  && make build \
@@ -28,7 +27,7 @@ RUN cd /tmp/vsyncer \
 ################################################################################
 # vsyncer image
 ################################################################################
-FROM ${REPO}/base:${TAG} as final
+FROM ${REPO}vsyncer-base:${TAG} as final
 
 # basic tools
 RUN apt-get update \
@@ -42,14 +41,14 @@ RUN apt-get update \
      openjdk-17-jre \
  && rm -rf /var/lib/apt/lists/*
 
-COPY --from=${REPO}/dat3m:${TAG} /usr/share/dat3m /usr/share/dat3m
+COPY --from=${REPO}vsyncer-dat3m:${TAG} /usr/share/dat3m /usr/share/dat3m
 RUN ln -s /usr/share/dat3m/dartagnan/target/libs/*.so /usr/lib/
 ENV DAT3M_HOME=/usr/share/dat3m
 ENV DAT3M_OUTPUT="/tmp/dat3m"
 
 # genmc
-COPY --from=${REPO}/genmc:${TAG} /usr/share/genmc9 /usr/share/genmc9
-COPY --from=${REPO}/genmc:${TAG} /usr/share/genmc10 /usr/share/genmc10
+COPY --from=${REPO}vsyncer-genmc:${TAG} /usr/share/genmc9 /usr/share/genmc9
+COPY --from=${REPO}vsyncer-genmc:${TAG} /usr/share/genmc10 /usr/share/genmc10
 ENV PATH="/usr/share/genmc9/bin:$PATH"
 
 # vsyncer

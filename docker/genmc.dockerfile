@@ -1,10 +1,10 @@
-ARG BASE_TAG=dev
-ARG BASE_IMAGE=ghcr.io/open-s4c/vsyncer/base
+ARG TAG=main
+ARG REPO=ghcr.io/open-s4c/
 
 ################################################################################
 # genmc_builder
 ################################################################################
-FROM ${BASE_IMAGE}:${BASE_TAG} as genmc_builder
+FROM ${REPO}vsyncer-base:${TAG} as genmc_builder
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \

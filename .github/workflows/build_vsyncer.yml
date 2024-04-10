@@ -17,15 +17,15 @@ jobs:
         fail-fast: true
         max-parallel: 1
         dockerfile:
-          - name: "vsyncer/base"
+          - name: "vsyncer-base"
             path: "docker/base.dockerfile"
-          - name: "vsyncer/genmc"
+          - name: "vsyncer-genmc"
             path: "docker/genmc.dockerfile"
-          - name: "vsyncer/dat3m"
+          - name: "vsyncer-dat3m"
             path: "docker/dat3m.dockerfile"
           - name: "vsyncer"
             path: "docker/vsyncer.dockerfile"
-          - name: "vsyncer/ci"
+          - name: "vsyncer-ci"
             path: "docker/ci.dockerfile"
     steps:
       - name: Checkout repository
