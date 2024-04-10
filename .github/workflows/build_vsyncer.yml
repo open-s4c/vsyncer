@@ -58,7 +58,7 @@ jobs:
       - name: Set TAG properly
         id: tag
         run: |
-          echo ::set-output name=TAG::"$(echo ${{ github.ref_name }} | tr '/' '-')"
+          echo "TAG=$(echo ${{ github.ref_name }} | tr '/' '-')" >> ${GITHUB_ENV}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5.1.0
@@ -73,7 +73,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            "TAG=${{ steps.tag.outputs.TAG }}"
+            "TAG=$TAG"
             "VSYNCER_TAG=${{ github.sha }}"
 
 
