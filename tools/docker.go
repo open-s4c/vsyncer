@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-const (
+var (
 	dockerPath  = "docker"
 	dockerImage = "ghcr.io/open-s4c/vsyncer"
 	dockerTag   = "latest"
