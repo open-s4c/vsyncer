@@ -51,31 +51,6 @@ var models = map[MemoryModel]struct {
 	VMM:   {"vmm.cat", "c11"},
 }
 
-func (c *DartagnanChecker) prepare(m DumpableModule, testFn string) error {
-	fn, err := tools.Touch("input-*.ll")
-	if err != nil {
-		return err
-	}
-	defer tools.Remove(fn)
-
-	if err = tools.Dump(m, fn); err != nil {
-		return err
-	}
-
-	llvmLink, err := tools.FindCmd("LLVM_LINK_CMD")
-	if err != nil {
-		return fmt.Errorf("could not find llvm-link command: %v", err)
-	}
-
-	logger.Debug(append(llvmLink, fn, "-S", "-o", testFn))
-	out, err := exec.Command(llvmLink[0], append(llvmLink[1:], fn, "-S", "-o", testFn)...).CombinedOutput()
-	if err != nil {
-		logger.Debug(string(out))
-		return fmt.Errorf("could not link llvm files: %v", err)
-	}
-	return nil
-}
-
 func (c *DartagnanChecker) run(ctx context.Context, testFn string) (string, error) {
 	dartagnanHome := tools.GetEnv("DARTAGNAN_HOME")
 
@@ -123,7 +98,7 @@ func (c *DartagnanChecker) Check(ctx context.Context, m DumpableModule) (cr Chec
 	}
 	defer tools.Remove(testFn)
 
-	if err = c.prepare(m, testFn); err != nil {
+	if err = tools.Dump(m, testFn); err != nil {
 		return cr, err
 	}
 	sout, err := c.run(ctx, testFn)

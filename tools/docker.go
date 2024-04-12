@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"os/user"
 	"strings"
+	"vsync/logger"
 )
 
 var (
@@ -84,6 +85,9 @@ func DockerRun(ctx context.Context, args []string, volumes []string) error {
 
 	// user arguments
 	cmd = append(cmd, args...)
+
+	// log complete command
+	logger.Debugf("%v\n", append([]string{dockerCmd}, cmd...))
 
 	// create command, start output readers and start
 	c := exec.CommandContext(ctx, dockerCmd, cmd...)
