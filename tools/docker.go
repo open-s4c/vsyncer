@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	dockerPath  = "docker"
+	dockerCmd   = "docker"
 	dockerImage = "ghcr.io/open-s4c/vsyncer"
 	dockerTag   = "latest"
 	useDocker   = "false"
@@ -40,7 +40,7 @@ func DockerRun(ctx context.Context, args []string, volumes []string) error {
 	}
 
 	// check docker installation
-	if err := exec.CommandContext(ctx, dockerPath).Run(); err != nil {
+	if err := exec.CommandContext(ctx, dockerCmd).Run(); err != nil {
 		return fmt.Errorf("could not run docker: %v", err)
 	}
 
@@ -50,7 +50,7 @@ func DockerRun(ctx context.Context, args []string, volumes []string) error {
 	}
 
 	// is it rootless?
-	if output, err := exec.CommandContext(ctx, dockerPath, "info", "-f",
+	if output, err := exec.CommandContext(ctx, dockerCmd, "info", "-f",
 		"{{println .SecurityOptions}}").Output(); err != nil {
 		return fmt.Errorf("could not run docker: %v", err)
 	} else {
@@ -86,7 +86,7 @@ func DockerRun(ctx context.Context, args []string, volumes []string) error {
 	cmd = append(cmd, args...)
 
 	// create command, start output readers and start
-	c := exec.CommandContext(ctx, dockerPath, cmd...)
+	c := exec.CommandContext(ctx, dockerCmd, cmd...)
 	if err := startReaders(c); err != nil {
 		return err
 	}

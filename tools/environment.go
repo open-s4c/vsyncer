@@ -7,10 +7,22 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"vsync/logger"
 )
+
+var vsyncerCmd string
+
+func init() {
+	if cmd, err := filepath.Abs(os.Args[0]); err != nil {
+		logger.Fatalf("could not find vsyncer path: %v", err)
+	} else {
+		vsyncerCmd = cmd
+	}
+
+}
 
 // FindCmd looks for the value of an environment variable.
 // If not set returns a default value.
@@ -22,7 +34,7 @@ func FindCmd(key string) ([]string, error) {
 
 	cmds := strings.Split(val, " ")
 	if IsDefaultEnv(key) && GetEnv("VSYNCER_DOCKER") == "true" {
-		return append([]string{"vsyncer", "docker", "--"}, cmds...), nil
+		return append([]string{vsyncerCmd, "docker", "--"}, cmds...), nil
 	}
 	return cmds, err
 }
