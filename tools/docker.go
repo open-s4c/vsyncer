@@ -58,7 +58,7 @@ func DockerRun(ctx context.Context, args []string, volumes []string) error {
 	}
 
 	// if not rooless do I have permission?
-	if !rootless {
+	if !rootless && u.Uid != "0" {
 		// check if user in docker group, otherwise should we request sudo?
 		if output, err := exec.CommandContext(ctx, "id", "-Gn").Output(); err != nil {
 			return fmt.Errorf("could get user groups: %v", err)
