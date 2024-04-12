@@ -1,8 +1,12 @@
-PREFIX ?= /usr/local
-TAG     	= $(shell git describe --always --tags --dirty)
-FLAGS   	= -ldflags '-X main.version=$(TAG)'
-BUILD   	= build
-GENERATED 	= $(shell find -name *_string.go)
+PREFIX     ?= /usr/local
+BUILD       = build
+GENERATED   = $(shell find -name *_string.go)
+TAG        ?= $(shell git describe --always --tags --dirty)
+DOCKER_TAG ?= "latest"
+USE_DOCKER ?= "false"
+LDFLAGS     = -X main.version=$(TAG) \
+              -X tools.useDocker=$(USE_DOCKER) \
+              -X tools.dockerTag=$(DOCKER_TAG)
 ################################################################################
 # user goals
 ################################################################################
@@ -36,7 +40,7 @@ build-dir:
 	mkdir -p $(BUILD)
 
 $(BUILD)/vsyncer: build-dir $(shell find -name '*.go')
-	go build $(FLAGS) -o $@ ./cmd/vsyncer
+	go build -ldflags '$(LDFLAGS)' -o $@ ./cmd/vsyncer
 
 ################################################################################
 # support goals
