@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
+	"os/exec"
 	"sort"
 	"strings"
 	"vsync/logger"
@@ -16,7 +16,7 @@ import (
 var vsyncerCmd string
 
 func init() {
-	if cmd, err := filepath.Abs(os.Args[0]); err != nil {
+	if cmd, err := exec.LookPath(os.Args[0]); err != nil {
 		logger.Fatalf("could not find vsyncer path: %v", err)
 	} else {
 		vsyncerCmd = cmd
