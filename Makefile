@@ -4,9 +4,10 @@ GENERATED   = $(shell find -name *_string.go)
 TAG        ?= $(shell git describe --always --tags --dirty)
 DOCKER_TAG ?= "latest"
 USE_DOCKER ?= "false"
-LDFLAGS     = -X main.version=$(TAG) \
+LDXFLAGS    = -X main.version=$(TAG) \
               -X vsync/tools.useDocker=$(USE_DOCKER) \
               -X vsync/tools.dockerTag=$(DOCKER_TAG)
+LDFLAGS     = -ldflags='-extldflags=-static $(LDXFLAGS)'
 ################################################################################
 # user goals
 ################################################################################
@@ -40,7 +41,7 @@ build-dir:
 	mkdir -p $(BUILD)
 
 $(BUILD)/vsyncer: build-dir $(shell find -name '*.go')
-	go build -ldflags '$(LDFLAGS)' -o $@ ./cmd/vsyncer
+	env CGO_ENABLED=0 go build $(LDFLAGS) -o $@ ./cmd/vsyncer
 
 ################################################################################
 # support goals
