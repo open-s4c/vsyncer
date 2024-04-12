@@ -14,8 +14,6 @@ import (
 func init() {
 	RegEnv("CLANG_CMD", "clang",
 		"Path to clang or space-separated command to run clang")
-	RegEnv("LLVM_LINK_CMD", "llvm-link",
-		"Path to llvm-link or space-separated command to run llvm-link")
 	RegEnv("CFLAGS", "",
 		"Flags passed to clang when compiling the target file")
 

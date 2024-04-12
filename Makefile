@@ -2,8 +2,8 @@ PREFIX     ?= /usr/local
 BUILD       = build
 GENERATED   = $(shell find -name *_string.go)
 TAG        ?= $(shell git describe --always --tags --dirty)
-DOCKER_TAG ?= "latest"
-USE_DOCKER ?= "false"
+DOCKER_TAG ?= latest
+USE_DOCKER ?= false
 LDXFLAGS    = -X main.version=$(TAG) \
               -X vsync/tools.useDocker=$(USE_DOCKER) \
               -X vsync/tools.dockerTag=$(DOCKER_TAG)
