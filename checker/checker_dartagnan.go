@@ -102,16 +102,16 @@ func (c *DartagnanChecker) Check(ctx context.Context, m DumpableModule) (cr Chec
 		return cr, err
 	}
 	sout, err := c.run(ctx, testFn)
-	if err != nil {
-		return cr, err
-	}
-
-	logger.Debug(sout)
 	if ctx.Err() == context.Canceled {
 		return cr, nil
 	}
 	if ctx.Err() == context.DeadlineExceeded {
 		return CheckResult{Status: CheckTimeout}, nil
+	}
+
+	logger.Debug("Output:", sout)
+	if err != nil {
+		return cr, err
 	}
 	if err != nil {
 		return cr, err

@@ -277,6 +277,8 @@ func (d *Driver) getCheckClosure(m MutableModule, at core.Selection, tau time.Du
 				logger.Fatalf("%v\n", r.Output)
 			}
 			d.stats.Inc(Error)
+
+			// consider internal checker error as invalid
 			logger.Println("ERROR -> INVALID")
 			d.filter.Set(bs)
 		}
