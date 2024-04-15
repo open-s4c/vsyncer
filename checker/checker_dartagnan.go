@@ -117,6 +117,8 @@ func (c *DartagnanChecker) Check(ctx context.Context, m DumpableModule) (cr Chec
 		return CheckResult{Status: CheckNotSafe, Output: sout}, nil
 	} else if strings.Contains(sout, "Liveness violation found") {
 		return CheckResult{Status: CheckNotLive, Output: sout}, nil
+	} else if strings.Contains(sout, "CAT specification violation found") {
+		return CheckResult{Status: CheckNotSafe, Output: sout}, nil
 	} else if strings.Contains(sout, "Verification finished with result UNKNOWN\n") {
 		text := `No violation found, but the program was not fully unrolled.
 Try increasing the unrolling bound by adding "--bound=X" (where X is the bound) to DARTAGNAN_OPTIONS.`
