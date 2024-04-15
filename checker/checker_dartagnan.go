@@ -113,9 +113,6 @@ func (c *DartagnanChecker) Check(ctx context.Context, m DumpableModule) (cr Chec
 	if err != nil {
 		return cr, err
 	}
-	if err != nil {
-		return cr, err
-	}
 	if strings.Contains(sout, "Program specification violation found") {
 		return CheckResult{Status: CheckNotSafe, Output: sout}, nil
 	} else if strings.Contains(sout, "Liveness violation found") {
