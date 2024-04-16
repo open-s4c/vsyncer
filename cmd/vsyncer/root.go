@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -46,6 +47,9 @@ var rootCmd = cobra.Command{
 }
 
 func init() {
+	tools.RegEnv("VSYNCER_DEFAULT_CHECKER", "genmc", "Default model checker")
+	tools.RegEnv("VSYNCER_DEFAULT_ENTRY_FUNC", "main", "Default entry functions for analysis")
+
 	helpMessage :=
 		`vsyncer -- Verification and optimization of concurrent code on WMM`
 
@@ -58,12 +62,14 @@ func init() {
 
 	flags := rootCmd.PersistentFlags()
 	flags.StringVar(&rootFlags.log, "log", "ERROR", "log level (ERROR|INFO|WARN)")
-	flags.StringVarP(&rootFlags.checker, "checker", "c", "genmc", "target checker (genmc|dartagnan|mock)")
+	flags.StringVarP(&rootFlags.checker, "checker", "c", tools.GetEnv("VSYNCER_DEFAULT_CHECKER"), "target checker (genmc|dartagnan|mock)")
 	flags.StringVarP(&rootFlags.outputFn, "output", "o", "", "output LLVM file")
 	flags.BoolVar(&rootFlags.expand, "expand", true, "expand vatomic functions")
 	flags.BoolVarP(&rootFlags.debug, "debug", "d", false, "set debug mode")
 	flags.BoolVarP(&rootFlags.quiet, "quiet", "q", false, "do not produce output")
-	flags.StringSliceVar(&rootFlags.entryFunc, "entry-func", []string{"main"}, "list of entry functions")
+	flags.StringSliceVar(&rootFlags.entryFunc, "entry-func",
+		strings.Split(tools.GetEnv("VSYNCER_DEFAULT_ENTRY_FUNC"), ","),
+		"list of entry functions")
 
 	rootCmd.SetHelpCommand(&cobra.Command{Hidden: true})
 	initOptimize()

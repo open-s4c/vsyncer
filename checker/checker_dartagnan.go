@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"vsync/logger"
@@ -28,6 +29,7 @@ func init() {
 		"Options passed to Dartagnan in additon to the default options")
 	tools.RegEnv("DARTAGNAN_SET_OPTIONS", "",
 		"Options passed to Dartagnan, replacing the default options")
+	tools.RegEnv("DARTAGNAN_CAT_PATH", "", "Path to custom .cat files")
 }
 
 // NewDartagnan creates a new checker using Dartagnan model checker.
@@ -51,16 +53,36 @@ var models = map[MemoryModel]struct {
 	VMM:   {"vmm.cat", "c11"},
 }
 
-func (c *DartagnanChecker) run(ctx context.Context, testFn string) (string, error) {
+func catFilePath(mm MemoryModel) string {
 	dartagnanHome := tools.GetEnv("DARTAGNAN_HOME")
 
+	modelInfo, has := models[mm]
+	if !has {
+		logger.Fatalf("could not find info for model '%v'", mm)
+	}
+
+	if b := tools.GetEnv("DARTAGNAN_CAT_PATH"); b != "" {
+		if cpath := filepath.Join(b, modelInfo.cat); tools.FileExists(cpath) == nil {
+			return cpath
+		}
+	}
+
+	cpath := filepath.Join(dartagnanHome, "cat", modelInfo.cat)
+	if err := tools.FileExists(cpath); err != nil {
+		logger.Fatalf("could not find custom cat file: %v", err)
+	}
+	return cpath
+}
+
+func (c *DartagnanChecker) run(ctx context.Context, testFn string) (string, error) {
+
 	opts := []string{
-		"--property=program_spec,liveness",
+		"--property=program_spec,cat_spec,liveness",
 		"--modeling.threadCreateAlwaysSucceeds=true",
 		"--encoding.wmm.idl2sat=true",
 		"--solver=yices2",
 		fmt.Sprintf("--target=%s", models[c.mm].arch),
-		fmt.Sprintf("%s/cat/%s", dartagnanHome, models[c.mm].cat),
+		catFilePath(c.mm),
 	}
 
 	if env := tools.GetEnv("DARTAGNAN_OPTIONS"); env != "" {
@@ -71,6 +93,7 @@ func (c *DartagnanChecker) run(ctx context.Context, testFn string) (string, erro
 		opts = strings.Split(env, " ")
 	}
 
+	dartagnanHome := tools.GetEnv("DARTAGNAN_HOME")
 	args := append([]string{"-jar",
 		dartagnanHome + "/dartagnan/target/dartagnan.jar",
 		testFn,

@@ -46,7 +46,7 @@ type Envvar struct {
 }
 
 func (e Envvar) String() string {
-	return fmt.Sprintf("%s: %s (default: %s)", e.Name, e.Desc, e.Defv)
+	return fmt.Sprintf("%s: %s (fallback: %s)", e.Name, e.Desc, e.Defv)
 }
 
 var envVars = map[string]Envvar{}

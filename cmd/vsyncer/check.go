@@ -35,6 +35,8 @@ var checkCmd = cobra.Command{
 }
 
 func init() {
+	tools.RegEnv("VSYNCER_DEFAULT_MEMMODEL", "imm", "Default memory model")
+
 	flags := checkCmd.PersistentFlags()
 	flags.StringVar(&checkFlags.csvFile, "csv-log", "", "CSV file to append the final result to ")
 	flags.DurationVar(&checkFlags.timeout, "timeout", 0, "Check timeout, e.g., 1s for 1 second, 1m for 1 minute.\nCheck will fail if the model checker did not finish within the given time.\ntimeout 0 is equivalent to no timeout")
@@ -44,7 +46,7 @@ func init() {
 }
 
 func addCheckFlags(flags *pflag.FlagSet) {
-	flags.StringVarP(&checkFlags.memoryModel, "memory-model", "m", "imm", "memory model")
+	flags.StringVarP(&checkFlags.memoryModel, "memory-model", "m", tools.GetEnv("VSYNCER_DEFAULT_MEMMODEL"), "memory model")
 	flags.SetInterspersed(false)
 }
 
