@@ -137,6 +137,7 @@ func init() {
 		func() []string {
 			return []string{
 				"-DVSYNC_VERIFICATION_DAT3M",
+				"-DVSYNC_DISABLE_SPIN_ANNOTATION",
 			}
 		}
 }
