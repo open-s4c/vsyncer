@@ -68,7 +68,7 @@ RUN cd /tmp \
  && git clone \
      https://github.com/hernanponcedeleon/dat3m.git \
  && cd dat3m \
- && git checkout "b57432899c04c45c8ce13d85582f7ca13eb22800"
+ && git checkout "dc41aaebd4d962d2c6c6ac306a48d61000a351e3"
 
 RUN cd /tmp/dat3m \
  && mvn clean install -DskipTests \
