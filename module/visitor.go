@@ -14,7 +14,7 @@ import (
 	"vsync/logger"
 )
 
-var verboseVisitor = false
+var verboseVisitor = true
 
 // DebugVisitor turns on several debugging prints in the visitor.
 func DebugVisitor() {
@@ -98,9 +98,14 @@ func (v *visitor) visitCallee(inst *ir.InstCall, f *ir.Func, stack []meta, cb Vi
 		v.leave()
 	} else if strings.Contains(callee, "__VERIFIER_thread_create") {
 		var ff *ir.Func
+		// signature
+		//   __VERIFIER_thread_create(attribute, start_routine, arg) --> object
+		v.logf("__VERIFIER_thread_create Operands: %v\n", inst.Operands())
 		threadRun := inst.Operands()[2]
+		v.logf("Operands()[2]: %#v\n", *threadRun)
+
 		if arg, ok := (*threadRun).(*ir.Arg); !ok {
-			return fmt.Errorf("could not cast %v", *threadRun)
+			return fmt.Errorf("could not cast ir.Arg %v", *threadRun)
 		} else if ff, ok = arg.Value.(*ir.Func); !ok {
 			logger.Warnf("Ignoring function pointer in pthread_create.")
 			return nil
