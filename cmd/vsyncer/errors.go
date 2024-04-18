@@ -5,6 +5,7 @@ package main
 
 import (
 	"fmt"
+	"os/exec"
 
 	"vsync/checker"
 	"vsync/logger"
@@ -77,6 +78,8 @@ func getErrorCode(err error) int {
 	switch e := err.(type) {
 	case *vError:
 		return e.Code()
+	case *exec.ExitError:
+		return e.ExitCode()
 	default:
 		return -1
 	}
@@ -85,6 +88,17 @@ func getErrorCode(err error) int {
 func getErrorMessage(err error) string {
 	if err == nil {
 		return ""
+	}
+	switch e := err.(type) {
+	case *vError:
+		if e.Code() == 1 {
+			return fmt.Sprintf("internal error (run with -d for details)\n%v", err.Error())
+		}
+	case *exec.ExitError:
+		if e.ExitCode() == 1 {
+			return fmt.Sprintf("internal error (run with -d for details)\n%v", err.Error())
+		}
+	default:
 	}
 	return err.Error()
 }

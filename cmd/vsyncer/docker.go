@@ -6,7 +6,6 @@ package main
 import (
 	"context"
 	"os"
-	"vsync/logger"
 	"vsync/tools"
 
 	"github.com/spf13/cobra"
@@ -35,11 +34,9 @@ var dockerCmd = &cobra.Command{
 var dockerEmptyCmd = &cobra.Command{
 	Use:   "docker [flags] -- <command> [args]",
 	Short: "Runs command in vsyncer Docker container",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		os.Args = os.Args[1:]
-		if err := dockerCmd.Execute(); err != nil {
-			logger.Fatal(err)
-		}
+		return dockerCmd.Execute()
 	},
 
 	DisableFlagParsing:    true,

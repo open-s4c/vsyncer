@@ -54,8 +54,10 @@ func expandVisitor(mod *ir.Module) VisitCallback {
 			in.Callee = cloneFunc(mod, fname, cloneFname)
 
 			// return call instruction to replace current one
-			logger.Debugf("clonedFunc: %v", in.Callee.Ident())
-			logger.Debugf("clonedCall: %v", in.LLString())
+			if verboseVisitor {
+				logger.Debugf("clonedFunc: %v", in.Callee.Ident())
+				logger.Debugf("clonedCall: %v", in.LLString())
+			}
 			return in
 		default:
 		}
