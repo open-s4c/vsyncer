@@ -68,9 +68,11 @@ func catFilePath(mm MemoryModel) string {
 	}
 
 	cpath := filepath.Join(dartagnanHome, "cat", modelInfo.cat)
-	if err := tools.FileExists(cpath); err != nil {
-		logger.Fatalf("could not find custom cat file: %v", err)
-	}
+
+	// we could be running dat3m in the container via "vsyncer docker". So, we should either:
+	// A. return cpath even if it does not exist
+	// B. check if we are running "vsyncer docker" and then check inside the container
+	// For now, we go with option A.
 	return cpath
 }
 
