@@ -8,11 +8,17 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"os/exec"
+	"os/signal"
 	"os/user"
 	"strings"
+	"syscall"
 	"vsync/logger"
+
+	"github.com/creack/pty"
+	"golang.org/x/term"
 )
 
 var (
@@ -23,7 +29,18 @@ var (
 )
 
 func init() {
-	RegEnv("VSYNCER_DOCKER", useDocker, "Use vsyncer Docker container for GenMC, Dat3m, etc")
+	RegEnv("VSYNCER_DOCKER", useDocker, "Use Docker container when calling clang, GenMC, Dat3M, etc")
+	RegEnv("VSYNCER_DOCKER_IMAGE", dockerImage, "Docker image with clang, GenMC, Dat3M")
+	RegEnv("VSYNCER_DOCKER_TAG", dockerTag, "Docker image tag")
+}
+
+func DockerPull(ctx context.Context) error {
+	cmd := []string{"pull",
+		fmt.Sprintf("%s:%s", GetEnv("VSYNCER_DOCKER_IMAGE"), GetEnv("VSYNCER_DOCKER_TAG")),
+	}
+	out, err := exec.CommandContext(ctx, dockerCmd, cmd...).CombinedOutput()
+	fmt.Println(string(out))
+	return err
 }
 
 func DockerRun(ctx context.Context, args []string, volumes []string) error {
@@ -77,11 +94,19 @@ func DockerRun(ctx context.Context, args []string, volumes []string) error {
 		cmd = append(cmd, "-v", fmt.Sprintf("%s:%s", v, v))
 	}
 
+	// better hostname
+	cmd = append(cmd, "--hostname", "vsyncer")
+
 	// set working directory to be current directory
 	cmd = append(cmd, "-w", cwd)
 
+	// docker opts
+	if len(args) == 0 {
+		cmd = append(cmd, "-it")
+	}
+
 	// docker image
-	cmd = append(cmd, fmt.Sprintf("%s:%s", dockerImage, dockerTag))
+	cmd = append(cmd, fmt.Sprintf("%s:%s", GetEnv("VSYNCER_DOCKER_IMAGE"), GetEnv("VSYNCER_DOCKER_TAG")))
 
 	// user arguments
 	cmd = append(cmd, args...)
@@ -90,14 +115,53 @@ func DockerRun(ctx context.Context, args []string, volumes []string) error {
 	logger.Debugf("%v\n", append([]string{dockerCmd}, cmd...))
 
 	// create command, start output readers and start
+	if len(args) != 0 {
+		c := exec.CommandContext(ctx, dockerCmd, cmd...)
+		if err := startReaders(c); err != nil {
+			return err
+		}
+		if err := c.Start(); err != nil {
+			return err
+		}
+		return c.Wait()
+	}
+	// if no commands, use pty
+
+	// first set a better prompt
+	cmd = append(cmd, "/bin/sh", "-c", "echo \"export PS1='\\h:\\w % '\" > /tmp/bashrc && env PS1='' bash --rcfile /tmp/bashrc")
+
+	// create command and start pty
 	c := exec.CommandContext(ctx, dockerCmd, cmd...)
-	if err := startReaders(c); err != nil {
+	ptmx, err := pty.Start(c)
+	if err != nil {
 		return err
 	}
-	if err := c.Start(); err != nil {
-		return err
+	defer func() { _ = ptmx.Close() }()
+	// Handle pty size.
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, syscall.SIGWINCH)
+	go func() {
+		for range ch {
+			if err := pty.InheritSize(os.Stdin, ptmx); err != nil {
+				log.Printf("error resizing pty: %s", err)
+			}
+		}
+	}()
+	ch <- syscall.SIGWINCH                        // Initial resize.
+	defer func() { signal.Stop(ch); close(ch) }() // Cleanup signals when done.
+
+	// Set stdin in raw mode.
+	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
+	if err != nil {
+		panic(err)
 	}
-	return c.Wait()
+	defer func() { _ = term.Restore(int(os.Stdin.Fd()), oldState) }() // Best effort.
+
+	// Copy stdin to the pty and the pty to stdout.
+	// NOTE: The goroutine will keep reading until the next keystroke before returning.
+	go func() { _, _ = io.Copy(ptmx, os.Stdin) }()
+	_, _ = io.Copy(os.Stdout, ptmx)
+	return nil
 }
 
 func startReader(r io.ReadCloser, w io.Writer) {
@@ -110,6 +174,12 @@ func startReader(r io.ReadCloser, w io.Writer) {
 }
 
 func startReaders(c *exec.Cmd) error {
+	inWriter, err := c.StdinPipe()
+	if err != nil {
+		return err
+	}
+	startReader(os.Stdin, inWriter)
+
 	outReader, err := c.StdoutPipe()
 	if err != nil {
 		return err
