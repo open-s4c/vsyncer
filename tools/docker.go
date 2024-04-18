@@ -32,6 +32,7 @@ func init() {
 	RegEnv("VSYNCER_DOCKER", useDocker, "Use Docker container when calling clang, GenMC, Dat3M, etc")
 	RegEnv("VSYNCER_DOCKER_IMAGE", dockerImage, "Docker image with clang, GenMC, Dat3M")
 	RegEnv("VSYNCER_DOCKER_TAG", dockerTag, "Docker image tag")
+	RegEnv("VSYNCER_DOCKER_VOLUMES", "", "Comma-separated list of additional volumes to mount")
 }
 
 func DockerPull(ctx context.Context) error {
@@ -89,6 +90,10 @@ func DockerRun(ctx context.Context, args []string, volumes []string) error {
 
 	// mount current directory
 	cmd = append(cmd, "-v", fmt.Sprintf("%s:%s", cwd, cwd))
+
+	if v := GetEnv("VSYNCER_DOCKER_VOLUMES"); v != "" {
+		volumes = append(volumes, strings.Split(v, ",")...)
+	}
 
 	for _, v := range volumes {
 		cmd = append(cmd, "-v", fmt.Sprintf("%s:%s", v, v))
