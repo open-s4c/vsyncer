@@ -22,7 +22,7 @@ type DartagnanChecker struct {
 }
 
 func init() {
-	tools.RegEnv("JAVA_CMD", "java", "Path to java binary")
+	tools.RegEnv("DARTAGNAN_JAVA_CMD", "java", "Path to java binary")
 
 	tools.RegEnv("DARTAGNAN_HOME", "/usr/share/dat3m", "Path to DAT3M_HOME")
 	tools.RegEnv("DARTAGNAN_OPTIONS", "",
@@ -101,7 +101,7 @@ func (c *DartagnanChecker) run(ctx context.Context, testFn string) (string, erro
 		testFn,
 	}, opts...)
 
-	javaCmd, err := tools.FindCmd("JAVA_CMD")
+	javaCmd, err := tools.FindCmd("DARTAGNAN_JAVA_CMD")
 	if err != nil {
 		return "", err
 	}
