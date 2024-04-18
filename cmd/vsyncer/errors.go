@@ -5,6 +5,7 @@ package main
 
 import (
 	"fmt"
+	"os/exec"
 
 	"vsync/checker"
 	"vsync/logger"
@@ -77,6 +78,8 @@ func getErrorCode(err error) int {
 	switch e := err.(type) {
 	case *vError:
 		return e.Code()
+	case *exec.ExitError:
+		return e.ExitCode()
 	default:
 		return -1
 	}

@@ -117,7 +117,9 @@ func checkRun(_ *cobra.Command, args []string) (err error) {
 	}
 
 	if checkFlags.timeout != 0 {
-		cxt, _ = context.WithTimeout(cxt, checkFlags.timeout)
+		var cancel context.CancelFunc
+		cxt, cancel = context.WithTimeout(cxt, checkFlags.timeout)
+		defer cancel()
 	}
 
 	result, err = chkr.Check(cxt, m)
