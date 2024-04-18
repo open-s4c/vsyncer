@@ -3,6 +3,8 @@ module vsync
 go 1.18
 
 require (
+	github.com/ashanbrown/forbidigo v1.6.0
+	github.com/creack/pty v1.1.21
 	github.com/fatih/color v1.15.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/llir/llvm v0.3.7-0.20230825113436-8d4d17852913
@@ -10,11 +12,11 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.1
 	golang.org/x/sync v0.3.0
+	golang.org/x/term v0.2.0
 	golang.org/x/tools v0.12.0
 )
 
 require (
-	github.com/ashanbrown/forbidigo v1.6.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/camelcase v1.0.0 // indirect
 	github.com/fatih/gomodifytags v1.16.0 // indirect

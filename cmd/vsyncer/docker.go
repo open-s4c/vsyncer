@@ -18,11 +18,12 @@ Runs arguments in vsyncer Docker container.
 
 var dockerFlags = struct {
 	volumes []string
+	pull    bool
 }{}
 
 var dockerCmd = &cobra.Command{
 	Use:   "vsyncer docker [flags] -- <command> [args]",
-	Short: "Runs command in vsyncer Docker container",
+	Short: "Runs command in vsyncer Docker container. Pass no command to start the interactive shell.",
 	Long:  dockerDoc,
 	RunE:  dockerRun,
 
@@ -53,8 +54,14 @@ func init() {
 	rootCmd.AddCommand(dockerEmptyCmd)
 	flags := dockerCmd.Flags()
 	flags.StringSliceVarP(&dockerFlags.volumes, "volume", "v", []string{}, "mount volumes")
+	flags.BoolVar(&dockerFlags.pull, "pull", false, "Pull Docker image before running")
 }
 
 func dockerRun(_ *cobra.Command, args []string) error {
+	if dockerFlags.pull {
+		if err := tools.DockerPull(context.Background()); err != nil {
+			return err
+		}
+	}
 	return tools.DockerRun(context.Background(), args, dockerFlags.volumes)
 }
