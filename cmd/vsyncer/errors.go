@@ -89,5 +89,16 @@ func getErrorMessage(err error) string {
 	if err == nil {
 		return ""
 	}
+	switch e := err.(type) {
+	case *vError:
+		if e.Code() == 1 {
+			return fmt.Sprintf("internal error (run with -d for details)\n%v", err.Error())
+		}
+	case *exec.ExitError:
+		if e.ExitCode() == 1 {
+			return fmt.Sprintf("internal error (run with -d for details)\n%v", err.Error())
+		}
+	default:
+	}
 	return err.Error()
 }
