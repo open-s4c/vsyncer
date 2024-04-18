@@ -1,13 +1,15 @@
 PREFIX     ?= /usr/local
 BUILD       = build
-GENERATED   = $(shell find -name *_string.go)
 TAG        ?= $(shell git describe --always --tags --dirty)
 DOCKER_TAG ?= latest
-USE_DOCKER ?= false
+USE_DOCKER ?= true
 LDXFLAGS    = -X main.version=$(TAG) \
               -X vsync/tools.useDocker=$(USE_DOCKER) \
               -X vsync/tools.dockerTag=$(DOCKER_TAG)
 LDFLAGS     = -ldflags='-extldflags=-static $(LDXFLAGS)'
+
+SOURCES     = $(shell find -name '*.go' -not -name '*_string.go')
+GENERATED   = $(shell find -name *_string.go)
 ################################################################################
 # user goals
 ################################################################################
@@ -25,9 +27,9 @@ help:
 
 all: build
 
-build: generate build/vsyncer
+build: generate $(BUILD)/vsyncer
 
-install: build
+install: $(BUILD)/vsyncer
 	install $(BUILD)/vsyncer $(PREFIX)/bin/
 clean:
 	rm -rf $(BUILD) $(GENERATED)
@@ -38,9 +40,9 @@ clean:
 .PHONY: build-dir generate
 
 build-dir:
-	mkdir -p $(BUILD)
+	@mkdir -p $(BUILD)
 
-$(BUILD)/vsyncer: build-dir $(shell find -name '*.go')
+$(BUILD)/vsyncer: build-dir $(SOURCES)
 	env CGO_ENABLED=0 go build $(LDFLAGS) -o $@ ./cmd/vsyncer
 
 ################################################################################
