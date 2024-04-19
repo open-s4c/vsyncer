@@ -51,7 +51,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5.1.0
         with:
-          context: .
+          context: .github
           file: ${{ matrix.container.path }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
