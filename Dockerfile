@@ -128,5 +128,6 @@ ENV PATH="/usr/share/genmc9/bin:$PATH"
 
 # vsyncer
 COPY --from=vsyncer_builder /usr/bin/vsyncer /usr/bin/vsyncer
+ENV VSYNCER_DOCKER=false
 
 # done

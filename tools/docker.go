@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
+	"path/filepath"
 	"strings"
 	"vsync/logger"
 )
@@ -90,7 +91,11 @@ func DockerRun(ctx context.Context, args []string, volumes []string) error {
 	}
 
 	for _, v := range volumes {
-		cmd = append(cmd, "-v", fmt.Sprintf("%s:%s", v, v))
+		if abs, err := filepath.Abs(v); err != nil {
+			return fmt.Errorf("could not find volume path '%s': %v", v, err)
+		} else {
+			cmd = append(cmd, "-v", fmt.Sprintf("%s:%s", abs, abs))
+		}
 	}
 
 	// better hostname

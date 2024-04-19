@@ -1,7 +1,7 @@
-# vsyncer --- verifying and optimizing concurrent code on WMM
+# vsyncer -- verifying and optimizing concurrent code on WMMs
 
 `vsyncer` is a toolkit to verify and optimize concurrent C/C++ programs on Weak
-Memory Models (WMM).  The correctness of the target program is verified with
+Memory Models (WMMs).  The correctness of the target program is verified with
 state-of-the-art model checkers [Dartagnan][] and [GenMC][].  Optimization
 of the memory ordering of atomic operations is achieved by speculative
 verification of LLVM-IR mutations of the target program with feedback from
@@ -15,30 +15,58 @@ data structures and synchronization primitives verified and optimized with
 
 ## Installation
 
-### Runtime dependencies
+### Precompiled and Docker
 
-To run vsyncer you'll need the following tools:
+The simplest approach to run `vsyncer` is by using the prebuilt binary and
+a Docker container with its dependencies.  In more detail:
 
-- clang and llvm >= v10
+- download the binary of the current release,
+- change the name of the file to `vsyncer`, and then
+- either install the file in your `PATH` with `install vsyncer /some/path/bin`,
+- or set the file permissions with `chmod 755 vsyncer`.
+
+After that run `vsyncer docker --pull` to fetch the docker container with
+the dependencies (GenMC, Dartagnan, clang, etc).
+
+We assume that your user has rights to run docker, ie, either with rootless
+Docker or having your user in the `docker` group.  Please read the Docker
+[postinstall instructions][] further instructions.
+
+> Note: we have not yet tested `vsyncer` in macOS or Windows.
+
+### Building from source
+
+You will need Golang >= 1.18. Clone this repository and then run
+
+    make install PREFIX=/path/to/bin
+
+By default, `vsyncer` uses the runtime dependencies from the Docker image
+`ghcr.io/open-s4c/vsyncer` with tag `latest`. In contrast, precompiled
+releases use the fixed tag of the release.
+
+To select a specific Docker image tag set `DOCKER_TAG` when installing
+`vsyncer`:
+
+    make install PREFIX=/path/to/bin DOCKER_TAG=v2.0.0
+
+### Disabling Docker
+
+To run `vsyncer` without Docker, you'll need the following tools:
+
+- clang and llvm >= v14
 - Dartagnan >= v4.0.0 (alternative)
-- GenMC >= v0.8 (alternative)
+- GenMC >= v0.9 (alternative)
 
-You can have them installed on your system or use docker containers.
+When installing `vsyncer` from source, set `USE_DOCKER=false` so that
+the binary does not try to use Docker but instead call the tools as
+normal programs in the host:
 
-### Build from source
+    make install PREFIX=/path/to/bin USE_DOCKER=false
 
-Beyond the runtime dependencies, you'll need Golang >= v1.18 to build
-`vsyncer` from source.
-
-Assuming `go` and `make` are on your path, simply run
-
-    make
-    cp build/vsyncer /directory/on/your/path
-
-If you do not have make installed, simply build it with
-
-    go build -o vsyncer ./cmd/vsyncer
-    cp vsyncer /directory/on/your/path
+We assume these tools are in `PATH`, but you can ajust that with the
+environment variables `DARTAGNAN_JAVA_CMD`, `GENMC_CMD` and `CLANG_CMD`.
+See `vsyncer -h` for more information about the configuration via
+environment variables.
 
 ## Overview
 
@@ -82,21 +110,17 @@ as a **bitsequence**  such as `0b001101` or `0x1a40`.
 *A*, *X*, and *F* assignments take bitsequences in which each **pair** of bits represent the memory ordering of a specific atomic operation.
 The memory may be relaxed (`0b00`),  release (`0b01`), acquire (`0b10`), or sequentially consistent (`0b11`).
 
-### Quick start
+## Quick start
 
-#### Installation
-
-    go build -o /dir/in/path/vsyncer ./cmd/vsyncer
-
-#### Retrieving information from program
+### Retrieving information from program
 
     vsyncer info example/ttaslock.c
 
-#### Checking whether program is correct
+### Checking whether program is correct
 
     vsyncer check example/ttaslock.c
 
-#### Mutating program with a memory ordering assignment:
+### Mutating program with a memory ordering assignment:
 
     vsyncer mutate -o ttaslock.ll example/ttaslock.c -A 0x123
     vsyncer info ttaslock.ll
@@ -105,7 +129,7 @@ To make all memory orderings be sequential consistent, you have to set all
 the bits of the bitsequences. Since this is used quite often, `vsyncer`
 accepts -1 as a shortcut for a bitsequence with all bits set.
 
-#### Checking mutation
+### Checking mutation
 
     vsyncer check ttaslock.ll
 
@@ -113,12 +137,11 @@ Or simply mutate and check in a single command:
 
     vsyncer check -A 0x123 example/ttaslock.c
 
-Finally, to optimize the barriers, use `vsyncer optimze`. We suggest mutating
+Finally, to optimize the barriers, use `vsyncer optimize`. We suggest mutating
 the program to have all atomic operations with sequential consistent memory
 ordering first.
 
     vsyncer optimize -A -1 example/ttaslock.c
-
 
 ## Limitations
 
@@ -168,7 +191,6 @@ The dependencies have the following licenses:
 
 Use [go-licenses](https://github.com/google/go-licenses) to review the licenses.
 
-
 ## Development information and contact
 
 Directory structure is as follows:
@@ -188,3 +210,4 @@ This project is under the support of [OpenHarmony Concurrency & Coordination TSG
 [Dartagnan]: https://github.com/hernanponcedeleon/Dat3M
 [GenMC]: https://github.com/MPI-SWS/genmc
 [libvsync]:  https://github.com/open-s4c/libvsync
+[postinstall instructions]: https://docs.docker.com/engine/install/linux-postinstall
