@@ -23,3 +23,7 @@ func dockerUserGroup(ctx context.Context) ([]string, error) {
 func dockerInteractive(_ *exec.Cmd) error {
 	return fmt.Errorf("functionality not supported")
 }
+
+func ToSlash(path string) string {
+	return path
+}

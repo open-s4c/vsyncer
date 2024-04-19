@@ -88,3 +88,7 @@ func dockerInteractive(c *exec.Cmd) error {
 	_, _ = io.Copy(os.Stdout, ptmx)
 	return nil
 }
+
+func ToSlash(path string) string {
+	return path
+}

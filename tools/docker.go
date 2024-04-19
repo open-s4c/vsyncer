@@ -31,6 +31,7 @@ func init() {
 
 func DockerPull(ctx context.Context) error {
 	cmd := []string{"pull",
+		"--platform", "linux/amd64",
 		fmt.Sprintf("%s:%s", GetEnv("VSYNCER_DOCKER_IMAGE"), GetEnv("VSYNCER_DOCKER_TAG")),
 	}
 	out, err := exec.CommandContext(ctx, dockerCmd, cmd...).CombinedOutput()
@@ -40,7 +41,8 @@ func DockerPull(ctx context.Context) error {
 
 func DockerRun(ctx context.Context, args []string, volumes []string) error {
 	var (
-		cmd = []string{"run", "--rm"}
+		cmd = []string{"run", "--platform", "linux/amd64", "--rm"}
+		cwd string
 	)
 
 	// are we running outside docker?
@@ -56,10 +58,14 @@ func DockerRun(ctx context.Context, args []string, volumes []string) error {
 	}
 
 	// find out current directory
-	cwd, err := os.Getwd()
-	if err != nil {
+	if cwdRel, err := os.Getwd(); err != nil {
 		return err
+	} else if cwd, err = filepath.Abs(cwdRel); err != nil {
+		return fmt.Errorf("could not find volume path '%s': %v", cwdRel, err)
 	}
+
+	// fix windows paths to contain only slashes
+	cwd = ToSlash(cwd)
 
 	// mount current directory
 	cmd = append(cmd, "-v", fmt.Sprintf("%s:%s", cwd, cwd))
@@ -72,6 +78,10 @@ func DockerRun(ctx context.Context, args []string, volumes []string) error {
 		if abs, err := filepath.Abs(v); err != nil {
 			return fmt.Errorf("could not find volume path '%s': %v", v, err)
 		} else {
+			// fix windows paths to contain only slashes
+			abs = ToSlash(abs)
+
+			// compose flag
 			cmd = append(cmd, "-v", fmt.Sprintf("%s:%s", abs, abs))
 		}
 	}

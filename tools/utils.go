@@ -24,7 +24,8 @@ func Touch(pattern string) (string, error) {
 	if err := tmp.Close(); err != nil {
 		logger.Warnf("error closing file: %v", err)
 	}
-	return tmp.Name(), nil
+
+	return ToSlash(tmp.Name()), nil
 }
 
 // RunCmd runs a command line with arguments and environment variable assignments
