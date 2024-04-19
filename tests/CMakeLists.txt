@@ -7,7 +7,9 @@ project(
 enable_testing()
 
 # if in GHA pipeline, use installed vsyncer, other use build
-if("$ENV{GITHUB_ACTIONS}" STREQUAL "true")
+option(VSYNCER_LOCAL "Uses local vsyncer, instead of installed one" ON)
+# if("$ENV{GITHUB_ACTIONS}" STREQUAL "true")
+if(NOT "${VSYNCER_LOCAL}")
   set(VSYNCER "vsyncer")
 else()
   # if running locally, use docker container
@@ -20,20 +22,8 @@ else()
 endif()
 
 # ##############################################################################
-# vsyncer checks
-# ##############################################################################
-
-set(SOURCES ok.c t1.c cmpxchg.c)
-list(TRANSFORM SOURCES PREPEND ${CMAKE_CURRENT_SOURCE_DIR}/)
-foreach(SRC ${SOURCES})
-  add_test(NAME ${SRC}-check COMMAND env ${ENVVARS} ${VSYNCER} check ${SRC})
-endforeach()
-
-# ##############################################################################
 # Integration tests
 # ##############################################################################
-
-option(VSYNCER_LOCAL "Uses local vsyncer, instead of installed one" ON)
 
 set(LOG ${CMAKE_CURRENT_BINARY_DIR}/log.csv)
 # fetch all c files in the current folder in CLIENTS
