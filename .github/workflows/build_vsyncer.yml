@@ -53,8 +53,8 @@ jobs:
         with:
           context: .github
           file: ${{ matrix.container.path }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ matrix.container }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.container }}
 
           push: true
           tags: ${{ steps.meta.outputs.tags }}
