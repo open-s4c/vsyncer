@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - Dockerfile with Dat3m v4.0.1
 - vsyncer docker command
 - Several configuration options (see `vsyncer -h`)
+- `vsyncer` releases with binaries for Linux, Windows and macOS
 
 ## [2.0.0] - 2024-01-26
 
