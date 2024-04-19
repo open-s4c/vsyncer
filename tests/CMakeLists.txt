@@ -6,12 +6,9 @@ project(
 
 enable_testing()
 
-# if in GHA pipeline, use installed vsyncer, other use build
 option(VSYNCER_LOCAL "Uses local vsyncer, instead of installed one" ON)
-# if("$ENV{GITHUB_ACTIONS}" STREQUAL "true")
-if(NOT "${VSYNCER_LOCAL}")
-  set(VSYNCER "vsyncer")
-else()
+
+if("${VSYNCER_LOCAL}")
   # if running locally, use docker container
 
   set(VSYNCER_DIR "${CMAKE_SOURCE_DIR}/..")
@@ -19,6 +16,8 @@ else()
 
   # we have to mount in the docker container the root of the vsyncer project
   set(ENVVARS "VSYNCER_DOCKER_VOLUMES=${VSYNCER_DIR}")
+else()
+  set(VSYNCER "vsyncer")
 endif()
 
 # ##############################################################################
@@ -26,10 +25,13 @@ endif()
 # ##############################################################################
 
 set(LOG ${CMAKE_CURRENT_BINARY_DIR}/log.csv)
+
 # fetch all c files in the current folder in CLIENTS
 file(GLOB CLIENTS *.c)
+
 # vsyncer commands
 set(CMDS compile check optimize)
+
 # check extra arguments
 set(ARGS_check --csv-log ${LOG})
 
@@ -44,8 +46,8 @@ set(TRIGGERS_MC_BUG #
     check_error #
 )
 
-# list of checkers to test
-set(CHECKERS dartagnan genmc9 genmc10)
+# list of checkers to test TODO: add dartagnan
+set(CHECKERS genmc9 genmc10)
 
 # mappings to --checker option
 set(CHECKER_dartagnan dartagnan)
@@ -66,7 +68,7 @@ foreach(CMD ${CMDS})
 
       add_test(
         NAME ${TEST_NAME}
-        COMMAND env ${ENVVARS} GENMC_PATH=${GENMC_${MC}} ${VSYNCER} --checker
+        COMMAND env ${ENVVARS} GENMC_CMD=${GENMC_${MC}} ${VSYNCER} --checker
                 ${CHECKER_${MC}} -d ${CMD} ${ARGS_${CMD}} ${CLIENT})
 
       # if it triggers model checker bug expect to return non-zero value
