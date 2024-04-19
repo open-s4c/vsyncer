@@ -4,16 +4,57 @@
 package tools
 
 import (
+	"context"
+	"fmt"
 	"io"
 	"log"
 	"os"
 	"os/exec"
 	"os/signal"
+	"os/user"
+	"strings"
 	"syscall"
 
 	"github.com/creack/pty"
 	"golang.org/x/term"
 )
+
+func dockerUserGroup(ctx context.Context) ([]string, error) {
+	var rootless bool
+
+	// find current user
+	u, err := user.Current()
+	if err != nil {
+		return nil, fmt.Errorf("could not find current user: %v", err)
+	}
+
+	// check docker installation
+	if err := exec.CommandContext(ctx, dockerCmd).Run(); err != nil {
+		return nil, fmt.Errorf("could not run docker: %v", err)
+	}
+
+	// is it rootless?
+	if output, err := exec.CommandContext(ctx, dockerCmd, "info", "-f",
+		"{{println .SecurityOptions}}").Output(); err != nil {
+		return nil, fmt.Errorf("could not run docker: %v", err)
+	} else {
+		rootless = strings.Contains(string(output), "rootless")
+	}
+
+	// if not rooless do I have permission?
+	if rootless || u.Uid != "0" {
+		return nil, nil
+	}
+
+	// check if user in docker group, otherwise should we request sudo?
+	if output, err := exec.CommandContext(ctx, "id", "-Gn").Output(); err != nil {
+		return nil, fmt.Errorf("could get user groups: %v", err)
+	} else if !strings.Contains(string(output), "docker") {
+		return nil, fmt.Errorf("user is not in docker group")
+	}
+
+	return []string{"-u", fmt.Sprintf("%v:%v", u.Uid, u.Gid)}, nil
+}
 
 func dockerInteractive(c *exec.Cmd) error {
 	ptmx, err := pty.Start(c)
