@@ -67,7 +67,7 @@ foreach(CMD ${CMDS})
       add_test(
         NAME ${TEST_NAME}
         COMMAND env ${ENVVARS} GENMC_PATH=${GENMC_${MC}} ${VSYNCER} --checker
-                ${CHECKER_${MC}} ${CMD} ${ARGS_${CMD}} ${CLIENT})
+                ${CHECKER_${MC}} -d ${CMD} ${ARGS_${CMD}} ${CLIENT})
 
       # if it triggers model checker bug expect to return non-zero value
       if(${TEST_NAME} IN_LIST TRIGGERS_MC_BUG OR ${CASE_NAME} IN_LIST
