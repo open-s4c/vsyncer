@@ -33,7 +33,7 @@ func FindCmd(key string) ([]string, error) {
 	}
 
 	cmds := strings.Split(val, " ")
-	if IsDefaultEnv(key) && GetEnv("VSYNCER_DOCKER") == "true" {
+	if GetEnv("VSYNCER_DOCKER") == "true" {
 		return append([]string{vsyncerCmd, "docker", "--"}, cmds...), nil
 	}
 	return cmds, err
