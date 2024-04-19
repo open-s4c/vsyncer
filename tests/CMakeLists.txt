@@ -19,7 +19,7 @@ list(TRANSFORM SOURCES PREPEND ${CMAKE_CURRENT_SOURCE_DIR}/)
 foreach(SRC ${SOURCES})
   # add_vsyncer_check works as a normal add_test, but the command runs inside
   # the vsyncer Docker container (unless VSYNCER_DOCKER=off).
-  add_vsyncer_check(NAME ${SRC}-check COMMAND vsyncer check ${SRC})
+  add_test(NAME ${SRC}-check COMMAND vsyncer check ${SRC})
 endforeach()
 
 # ##############################################################################
