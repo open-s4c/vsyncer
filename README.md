@@ -32,7 +32,7 @@ We assume that your user has rights to run docker, ie, either with rootless
 Docker or having your user in the `docker` group.  Please read the Docker
 [postinstall instructions][] further instructions.
 
-> Note: we have `vsyncer` binaries for macOS or Windows, but they haven't
+> Note: we have `vsyncer` binaries for macOS and Windows, but they haven't
 > been tested thoroughly. Please report any issues.
 
 ### Building from source
