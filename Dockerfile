@@ -35,16 +35,18 @@ RUN apt-get update \
 
 RUN cd /tmp \
  && git clone --depth 1 --branch "v0.9" \
-     https://github.com/open-s4c/genmc.git genmc9 \
- && cd genmc9 \
+     https://github.com/open-s4c/genmc.git genmc9
+
+RUN cd /tmp/genmc9 \
  && autoreconf --install \
  && ./configure --prefix=/usr/share/genmc9 \
  && make install -j8
 
 RUN cd /tmp \
  && git clone --depth 1 --branch "v0.10.1-a" \
-     https://github.com/open-s4c/genmc.git genmc10 \
- && cd genmc10 \
+     https://github.com/open-s4c/genmc.git genmc10
+
+RUN cd /tmp/genmc10 \
  && autoreconf --install \
  && ./configure --prefix=/usr/share/genmc10 \
  && make install -j8
@@ -65,10 +67,8 @@ RUN apt-get update  \
  && rm -rf /var/lib/apt/lists/*
 
 RUN cd /tmp \
- && git clone \
-     https://github.com/hernanponcedeleon/dat3m.git \
- && cd dat3m \
- && git checkout "8d22e4283f26473ed88e226480d84acaf09fad07"
+ && git clone --depth 1 --branch "4.0.1" \
+     https://github.com/hernanponcedeleon/dat3m.git
 
 RUN cd /tmp/dat3m \
  && mvn clean install -DskipTests \
