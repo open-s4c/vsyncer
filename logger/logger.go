@@ -24,6 +24,7 @@ const (
 	INFO
 	// DEBUG log as much as possible
 	DEBUG
+	// Add some totally unrelated change.
 )
 
 var (
