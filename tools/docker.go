@@ -10,7 +10,6 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"os/user"
 	"path/filepath"
 	"strings"
 	"vsync/logger"
@@ -32,6 +31,7 @@ func init() {
 
 func DockerPull(ctx context.Context) error {
 	cmd := []string{"pull",
+		"--platform", "linux/amd64",
 		fmt.Sprintf("%s:%s", GetEnv("VSYNCER_DOCKER_IMAGE"), GetEnv("VSYNCER_DOCKER_TAG")),
 	}
 	out, err := exec.CommandContext(ctx, dockerCmd, cmd...).CombinedOutput()
@@ -41,47 +41,31 @@ func DockerPull(ctx context.Context) error {
 
 func DockerRun(ctx context.Context, args []string, volumes []string) error {
 	var (
-		cmd      = []string{"run", "--rm"}
-		rootless = false
+		cmd = []string{"run", "--platform", "linux/amd64", "--rm"}
+		cwd string
 	)
-	// find current user
-	u, err := user.Current()
-
-	// find out current directory
-	cwd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
-	// check docker installation
-	if err := exec.CommandContext(ctx, dockerCmd).Run(); err != nil {
-		return fmt.Errorf("could not run docker: %v", err)
-	}
 
 	// are we running outside docker?
 	if FileExists("/.dockerenv") == nil {
 		return fmt.Errorf("running inside docker. Set VSYNCER_DOCKER=false")
 	}
 
-	// is it rootless?
-	if output, err := exec.CommandContext(ctx, dockerCmd, "info", "-f",
-		"{{println .SecurityOptions}}").Output(); err != nil {
-		return fmt.Errorf("could not run docker: %v", err)
-	} else {
-		rootless = strings.Contains(string(output), "rootless")
+	// get user/group flags
+	if u, err := dockerUserGroup(ctx); err != nil {
+		return err
+	} else if len(u) > 0 {
+		cmd = append(cmd, u...)
 	}
 
-	// if not rooless do I have permission?
-	if !rootless && u.Uid != "0" {
-		// check if user in docker group, otherwise should we request sudo?
-		if output, err := exec.CommandContext(ctx, "id", "-Gn").Output(); err != nil {
-			return fmt.Errorf("could get user groups: %v", err)
-		} else if !strings.Contains(string(output), "docker") {
-			return fmt.Errorf("user is not in docker group")
-		}
-
-		cmd = append(cmd, "-u", fmt.Sprintf("%v:%v", u.Uid, u.Gid))
+	// find out current directory
+	if cwdRel, err := os.Getwd(); err != nil {
+		return err
+	} else if cwd, err = filepath.Abs(cwdRel); err != nil {
+		return fmt.Errorf("could not find volume path '%s': %v", cwdRel, err)
 	}
+
+	// fix windows paths to contain only slashes
+	cwd = ToSlash(cwd)
 
 	// mount current directory
 	cmd = append(cmd, "-v", fmt.Sprintf("%s:%s", cwd, cwd))
@@ -94,6 +78,10 @@ func DockerRun(ctx context.Context, args []string, volumes []string) error {
 		if abs, err := filepath.Abs(v); err != nil {
 			return fmt.Errorf("could not find volume path '%s': %v", v, err)
 		} else {
+			// fix windows paths to contain only slashes
+			abs = ToSlash(abs)
+
+			// compose flag
 			cmd = append(cmd, "-v", fmt.Sprintf("%s:%s", abs, abs))
 		}
 	}

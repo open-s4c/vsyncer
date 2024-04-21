@@ -24,16 +24,54 @@ jobs:
         with:
           go-version: '1.20'
 
-      - name: Build
+      - name: Build for Linux amd64
         run: |
           make build \
             TAG=${{ github.event.release.tag_name }} \
             DOCKER_TAG=${{ github.event.release.tag_name }} \
+            GOOS=linux \
+            GOARCH=amd64 \
             USE_DOCKER="true"
 
-          cp build/vsyncer build/vsyncer-${{ github.event.release.tag_name }}-linux-x86_64
+          cp build/vsyncer build/vsyncer-${{ github.event.release.tag_name }}-linux-amd64
+
+      - name: Build for Windows
+        run: |
+          rm -rf build/vsyncer
+          make build/vsyncer \
+            TAG=${{ github.event.release.tag_name }} \
+            DOCKER_TAG=${{ github.event.release.tag_name }} \
+            GOOS=windows \
+            GOARCH=amd64 \
+            USE_DOCKER="true"
+
+          cp build/vsyncer build/vsyncer-${{ github.event.release.tag_name }}-windows-amd64.exe
+
+      - name: Build for macOS amd64
+        run: |
+          rm -rf build/vsyncer
+          make build/vsyncer \
+            TAG=${{ github.event.release.tag_name }} \
+            DOCKER_TAG=${{ github.event.release.tag_name }} \
+            GOOS=darwin \
+            GOARCH=amd64 \
+            USE_DOCKER="true"
+
+          cp build/vsyncer build/vsyncer-${{ github.event.release.tag_name }}-darwin-amd64
+
+      - name: Build for macOS arm64
+        run: |
+          rm -rf build/vsyncer
+          make build/vsyncer \
+            TAG=${{ github.event.release.tag_name }} \
+            DOCKER_TAG=${{ github.event.release.tag_name }} \
+            GOOS=darwin \
+            GOARCH=arm64 \
+            USE_DOCKER="true"
+
+          cp build/vsyncer build/vsyncer-${{ github.event.release.tag_name }}-darwin-arm64
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          files: build/vsyncer-${{ github.event.release.tag_name }}-linux-x86_64
+          files: build/vsyncer-${{ github.event.release.tag_name }}-*

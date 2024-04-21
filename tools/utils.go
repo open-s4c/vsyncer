@@ -24,7 +24,8 @@ func Touch(pattern string) (string, error) {
 	if err := tmp.Close(); err != nil {
 		logger.Warnf("error closing file: %v", err)
 	}
-	return tmp.Name(), nil
+
+	return ToSlash(tmp.Name()), nil
 }
 
 // RunCmd runs a command line with arguments and environment variable assignments
@@ -117,6 +118,7 @@ func Remove(fn string) error {
 
 // Dump writes the current state of the module to a file.
 func Dump(m fmt.Stringer, fn string) error {
+	fn = FromSlash(fn)
 	logger.Debugf("Dump file '%s'", fn)
 	out, err := os.OpenFile(fn,
 		os.O_TRUNC|os.O_WRONLY|os.O_CREATE, fileMode)

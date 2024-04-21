@@ -32,7 +32,8 @@ We assume that your user has rights to run docker, ie, either with rootless
 Docker or having your user in the `docker` group.  Please read the Docker
 [postinstall instructions][] further instructions.
 
-> Note: we have not yet tested `vsyncer` in macOS or Windows.
+> Note: we have `vsyncer` binaries for macOS and Windows, but they haven't
+> been tested thoroughly. Please report any issues.
 
 ### Building from source
 
@@ -47,14 +48,14 @@ releases use the fixed tag of the release.
 To select a specific Docker image tag set `DOCKER_TAG` when installing
 `vsyncer`:
 
-    make install PREFIX=/path/to/bin DOCKER_TAG=v2.0.0
+    make install PREFIX=/path/to/bin DOCKER_TAG=latest
 
 ### Disabling Docker
 
 To run `vsyncer` without Docker, you'll need the following tools:
 
 - clang and llvm >= v14
-- Dartagnan >= v4.0.0 (alternative)
+- Dartagnan >= v4.0.1 (alternative)
 - GenMC >= v0.9 (alternative)
 
 When installing `vsyncer` from source, set `USE_DOCKER=false` so that
