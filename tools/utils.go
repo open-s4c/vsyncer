@@ -118,6 +118,7 @@ func Remove(fn string) error {
 
 // Dump writes the current state of the module to a file.
 func Dump(m fmt.Stringer, fn string) error {
+	fn = FromSlash(fn)
 	logger.Debugf("Dump file '%s'", fn)
 	out, err := os.OpenFile(fn,
 		os.O_TRUNC|os.O_WRONLY|os.O_CREATE, fileMode)

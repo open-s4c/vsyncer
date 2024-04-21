@@ -16,6 +16,7 @@ import (
 
 	"vsync/core"
 	"vsync/logger"
+	"vsync/tools"
 )
 
 var (
@@ -196,6 +197,7 @@ func printDiffEntry(i int, d *diffEntry) error {
 }
 
 func readLineFromFile(fn string, line int64) (string, error) {
+	fn = tools.FromSlash(fn)
 	f, err := os.Open(fn)
 	if err != nil {
 		return "", err

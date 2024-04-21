@@ -27,3 +27,7 @@ func dockerInteractive(_ *exec.Cmd) error {
 func ToSlash(path string) string {
 	return path
 }
+
+func FromSlash(path string) string {
+	return path
+}

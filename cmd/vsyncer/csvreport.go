@@ -11,6 +11,7 @@ import (
 
 	"vsync/checker"
 	"vsync/logger"
+	"vsync/tools"
 )
 
 const fileMode = 0600
@@ -31,6 +32,7 @@ const (
 )
 
 func (csv csvReport) save(filename string) {
+	filename = tools.FromSlash(filename)
 	if filename == "" {
 		return
 	}

@@ -63,7 +63,7 @@ func catFilePath(mm MemoryModel) string {
 
 	if b := tools.GetEnv("DARTAGNAN_CAT_PATH"); b != "" {
 		if cpath := filepath.Join(b, modelInfo.cat); tools.FileExists(cpath) == nil {
-			return cpath
+			return tools.ToSlash(cpath)
 		}
 	}
 
@@ -73,7 +73,7 @@ func catFilePath(mm MemoryModel) string {
 	// A. return cpath even if it does not exist
 	// B. check if we are running "vsyncer docker" and then check inside the container
 	// For now, we go with option A.
-	return cpath
+	return tools.ToSlash(cpath)
 }
 
 func (c *DartagnanChecker) run(ctx context.Context, testFn string) (string, error) {
