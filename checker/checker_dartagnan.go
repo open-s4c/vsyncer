@@ -19,6 +19,7 @@ const fileMode = 0600
 // DartagnanChecker wraps the Dartagnan model checker by Hernan Ponce de Leon et al.
 type DartagnanChecker struct {
 	mm MemoryModel
+	version string
 }
 
 func init() {
@@ -36,9 +37,32 @@ func init() {
 
 // NewDartagnan creates a new checker using Dartagnan model checker.
 func NewDartagnan(mm MemoryModel) *DartagnanChecker {
-	return &DartagnanChecker{
+	dartagnan := &DartagnanChecker{
 		mm: mm,
 	}
+	dartagnan.setVersion()
+	return dartagnan
+}
+
+func (c *DartagnanChecker) setVersion() {
+	dartagnanHome := tools.GetEnv("DARTAGNAN_HOME")
+	args := append([]string{"-jar",
+		dartagnanHome + "/dartagnan/target/dartagnan.jar", "--version",
+	})
+	javaCmd, err := tools.FindCmd("DARTAGNAN_JAVA_CMD")
+	if err != nil {
+		logger.Fatalf("could not run java: %v", err)
+	}
+	ctx := context.Background()
+	out, err := exec.CommandContext(ctx, javaCmd[0], append(javaCmd[1:], args...)...).CombinedOutput()
+	if err != nil {
+		logger.Fatalf("could not get dartagnan version: %v", string(out))
+	}
+	c.version = string(out)
+}
+
+func (c *DartagnanChecker) GetVersion() string {
+	return fmt.Sprintf("v%d", c.version)
 }
 
 var models = map[MemoryModel]struct {
@@ -118,11 +142,6 @@ func (c *DartagnanChecker) run(ctx context.Context, testFn string) (string, erro
 	logger.Debug(append(javaCmd, args...)) // just a message
 	out, err := exec.CommandContext(ctx, javaCmd[0], append(javaCmd[1:], args...)...).CombinedOutput()
 	return string(out), err
-}
-
-func (c *DartagnanChecker) GetVersion() string {
-	// TODO: implement
-	return "unknown"
 }
 
 // Check performs a check run with Dartagnan
