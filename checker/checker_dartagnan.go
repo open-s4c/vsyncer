@@ -62,7 +62,7 @@ func (c *DartagnanChecker) setVersion() {
 }
 
 func (c *DartagnanChecker) GetVersion() string {
-	return fmt.Sprintf("v%d", c.version)
+	return fmt.Sprintf("v%s", c.version)
 }
 
 var models = map[MemoryModel]struct {
