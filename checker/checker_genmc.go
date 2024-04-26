@@ -26,7 +26,7 @@ func init() {
 }
 
 // GenMC is a wraps the GenMC model checker by Kokologiannakis et al.
-type GenMC struct {
+type GenMCChecker struct {
 	threads uint
 	mm      MemoryModel
 	results []CheckResult
@@ -44,9 +44,9 @@ func init() {
 		"Options passed to GenMC, replacing the default options")
 }
 
-// NewGenMC creates a new GenMC object
-func NewGenMC(mm MemoryModel, threads uint) *GenMC {
-	genmc := &GenMC{
+// NewGenMC creates a new checker using GenMC model checker.
+func NewGenMC(mm MemoryModel, threads uint) *GenMCChecker {
+	genmc := &GenMCChecker{
 		threads: threads,
 		mm:      mm,
 	}
@@ -58,7 +58,7 @@ func NewGenMC(mm MemoryModel, threads uint) *GenMC {
 	return genmc
 }
 
-func (c *GenMC) setVersion(genmcCmd []string) {
+func (c *GenMCChecker) setVersion(genmcCmd []string) {
 	args := append(genmcCmd, "--version")
 	my_ctx := context.Background()
 	ostr, err := tools.RunCmdContext(my_ctx, args[0], args[1:], nil)
@@ -80,11 +80,11 @@ func (c *GenMC) setVersion(genmcCmd []string) {
 	logger.Debugf("Detected GenMC version %d.%d.%d\n", c.version.major, c.version.minor, c.version.patch)
 }
 
-func (c *GenMC) GetVersion() string {
+func (c *GenMCChecker) GetVersion() string {
 	return fmt.Sprintf("v%d.%d.%d", c.version.major, c.version.minor, c.version.patch)
 }
 
-func (c *GenMC) checkOne(ctx context.Context, genmcCmd []string, opts []string, i int) error {
+func (c *GenMCChecker) checkOne(ctx context.Context, genmcCmd []string, opts []string, i int) error {
 	if len(c.results) <= i {
 		return fmt.Errorf("unexpected index: %d", i)
 	}
@@ -155,7 +155,7 @@ If your code uses __VERIFIER_assume(...), be sure you know what you are doing!`
 	return nil
 }
 
-func (c *GenMC) getOpts() ([]string, error) {
+func (c *GenMCChecker) getOpts() ([]string, error) {
 
 	var extendedOpts []string
 
@@ -202,7 +202,7 @@ func (c *GenMC) getOpts() ([]string, error) {
 	return extendedOpts, nil
 }
 
-func (c *GenMC) checkResult(err error) (CheckResult, error) {
+func (c *GenMCChecker) checkResult(err error) (CheckResult, error) {
 	if err != nil {
 		logger.Debugf("===== genmc failed =====\n%v\n========================", err)
 		return CheckResult{}, err
@@ -227,7 +227,7 @@ func (c *GenMC) checkResult(err error) (CheckResult, error) {
 }
 
 // Check runs GenMC on the module m
-func (c *GenMC) Check(ctx context.Context, m DumpableModule) (cr CheckResult, err error) {
+func (c *GenMCChecker) Check(ctx context.Context, m DumpableModule) (cr CheckResult, err error) {
 	fn, err := tools.Touch("input-*.ll")
 	if err != nil {
 		return cr, err
@@ -275,12 +275,12 @@ func (c *GenMC) Check(ctx context.Context, m DumpableModule) (cr CheckResult, er
 	return c.checkResult(g.Wait())
 }
 
-func (c *GenMC) doesTerminate(str string) bool {
+func (c *GenMCChecker) doesTerminate(str string) bool {
 	return !strings.Contains(str, "Liveness violation!")
 }
 
 // filterOut filters the output of genmc to remove weird messages.
-func (c *GenMC) filterOutput(out string) string {
+func (c *GenMCChecker) filterOutput(out string) string {
 	// remove anything before and including line with "Please submit"
 	idx := strings.Index(out, "Please submit")
 	if idx != -1 {
