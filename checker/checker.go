@@ -8,6 +8,12 @@ import (
 	"context"
 )
 
+type Version struct {
+	major int
+	minor int
+	patch int
+}
+
 // DumpableModule represents the interface of modules required by the checkers.
 type DumpableModule interface {
 	String() string

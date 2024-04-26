@@ -7,6 +7,8 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"regexp"
+	"strconv"
 	"path/filepath"
 	"strings"
 
@@ -19,7 +21,7 @@ const fileMode = 0600
 // DartagnanChecker wraps the Dartagnan model checker by Hernan Ponce de Leon et al.
 type DartagnanChecker struct {
 	mm MemoryModel
-	version string
+	version Version
 }
 
 func init() {
@@ -49,16 +51,28 @@ func (c *DartagnanChecker) setVersion() {
 	args := append([]string{"-jar",
 		dartagnanHome + "/dartagnan/target/dartagnan.jar", "--version",
 	})
+	ctx := context.Background()
 	javaCmd, err := tools.FindCmd("DARTAGNAN_JAVA_CMD")
 	if err != nil {
 		logger.Fatalf("could not run java: %v", err)
 	}
-	ctx := context.Background()
-	out, err := exec.CommandContext(ctx, javaCmd[0], append(javaCmd[1:], args...)...).CombinedOutput()
+	ostr, err := exec.CommandContext(ctx, javaCmd[0], append(javaCmd[1:], args...)...).CombinedOutput()
 	if err != nil {
-		logger.Fatalf("could not get dartagnan version: %v", string(out))
+		logger.Fatalf("could not run dartagnan: %v", string(ostr))
 	}
-	c.version = string(out)
+	r, err := regexp.Compile("(\\d+)\\.(\\d+)(\\.(\\d+))?")
+	if err != nil {
+		logger.Fatalf("could not parse dartagnan version: %v", err)
+	}
+	grps := r.FindStringSubmatch(string(ostr))
+	if len(grps) != 5 {
+		logger.Fatalf("unexpected dartagnan version format: %v", grps)
+	}
+	c.version.major, _ = strconv.Atoi(grps[1])
+	c.version.minor, _ = strconv.Atoi(grps[2])
+	// group 3 is the optional dot so we skip it
+	c.version.patch, _ = strconv.Atoi(grps[4])
+	logger.Debugf("Detected dartagnan version %d.%d.%d\n", c.version.major, c.version.minor, c.version.patch)
 }
 
 func (c *DartagnanChecker) GetVersion() string {

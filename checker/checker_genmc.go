@@ -25,12 +25,6 @@ func init() {
 		"Path to genmc headers, e.g., genmc.h")
 }
 
-type Version struct {
-	major int
-	minor int
-	patch int
-}
-
 // GenMC is a wraps the GenMC model checker by Kokologiannakis et al.
 type GenMC struct {
 	threads uint
@@ -83,7 +77,7 @@ func (c *GenMC) setVersion(genmcCmd []string) {
 	c.version.minor, _ = strconv.Atoi(grps[2])
 	// group 3 is the optional dot so we skip it
 	c.version.patch, _ = strconv.Atoi(grps[4])
-	logger.Debugf("Detected GenMC version v%d.%d.%d\n", c.version.major, c.version.minor, c.version.patch)
+	logger.Debugf("Detected GenMC version %d.%d.%d\n", c.version.major, c.version.minor, c.version.patch)
 }
 
 func (c *GenMC) GetVersion() string {
