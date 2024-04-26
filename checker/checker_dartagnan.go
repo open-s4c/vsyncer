@@ -30,7 +30,7 @@ func init() {
 	tools.RegEnv("DARTAGNAN_SET_OPTIONS", "",
 		"Options passed to Dartagnan, replacing the default options")
 	tools.RegEnv("DARTAGNAN_CAT_PATH", "", "Path to custom .cat files")
-	tools.RegEnv("DARTAGNAN_METHOD", "eager", "Backend method (values: eager | lazy)")
+	tools.RegEnv("DARTAGNAN_METHOD", "lazy", "Backend method (values: eager | lazy)")
 	tools.RegEnv("DARTAGNAN_BOUND", "", "Unroll bound integer (default unset)")
 }
 
@@ -50,7 +50,6 @@ var models = map[MemoryModel]struct {
 	Power: {"power.cat", "power"},
 	RiscV: {"riscv.cat", "riscv"},
 	IMM:   {"imm.cat", "imm"},
-	GIMM:  {"genmc-imm.cat", "imm"},
 	RC11:  {"rc11.cat", "c11"},
 	VMM:   {"vmm.cat", "c11"},
 }
@@ -156,11 +155,11 @@ func (c *DartagnanChecker) Check(ctx context.Context, m DumpableModule) (cr Chec
 		return CheckResult{Status: CheckNotSafe, Output: sout}, nil
 	} else if strings.Contains(sout, "Verification finished with result UNKNOWN\n") {
 		text := `No violation found, but the program was not fully unrolled.
-Try increasing the unrolling bound by adding "--bound=X" (where X is the bound) to DARTAGNAN_OPTIONS.`
+Try increasing the unrolling bound by setting "DARTAGNAN_BOUND=X" (where X is the bound).`
 		return CheckResult{Status: CheckRejected, Output: text}, nil
 	} else if strings.Contains(sout, "Number of iterations: 1\n") {
 		text := `Zero violating behaviors found.
-Try increasing the unrolling bound by adding "--bound=X" (where X is the bound) to DARTAGNAN_OPTIONS.
+Try increasing the unrolling bound by setting "DARTAGNAN_BOUND=X" (where X is the bound).
 If your code uses __VERIFIER_assume(...), be sure you know what you are doing!`
 		return CheckResult{Status: CheckRejected, Output: text}, nil
 	}
