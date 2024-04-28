@@ -111,6 +111,7 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends \
      clang \
      less \
+     llvm \
      vim \
      openjdk-17-jre \
  && rm -rf /var/lib/apt/lists/*
