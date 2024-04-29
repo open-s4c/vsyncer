@@ -67,8 +67,10 @@ RUN apt-get update  \
  && rm -rf /var/lib/apt/lists/*
 
 RUN cd /tmp \
- && git clone --depth 1 --branch "4.0.1" \
-     https://github.com/hernanponcedeleon/dat3m.git
+ && git clone \
+     https://github.com/hernanponcedeleon/dat3m.git \
+ && cd dat3m \
+ && git checkout "abab4597e3035b92485a10bfd2926716ea46474a"
 
 RUN cd /tmp/dat3m \
  && mvn clean install -DskipTests \
