@@ -113,8 +113,11 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends \
      clang \
      less \
-     vim \
+     libclang-dev \
+     llvm \
+     llvm-dev \
      openjdk-17-jre \
+     vim \
  && rm -rf /var/lib/apt/lists/*
 
 # dat3m
