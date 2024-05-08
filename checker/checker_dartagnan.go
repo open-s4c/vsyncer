@@ -35,6 +35,10 @@ func init() {
 	tools.RegEnv("DARTAGNAN_CAT_PATH", "", "Path to custom .cat files")
 	tools.RegEnv("DARTAGNAN_METHOD", "lazy", "Backend method (values: eager | lazy)")
 	tools.RegEnv("DARTAGNAN_BOUND", "", "Unroll bound integer (default unset)")
+
+	tools.RegEnv("DARTAGNAN_OPT_CMD", "opt", "Path to opt (the llvm optimizer)")
+	tools.RegEnv("DARTAGNAN_OPTFLAGS", "-mem2reg -sroa -early-cse -indvars -loop-unroll -fix-irreducible -loop-simplify -simplifycfg -gvn",
+		"Flags passed to opt when optimizing the target file for dartagnan")
 }
 
 // NewDartagnan creates a new checker using Dartagnan model checker.
@@ -115,6 +119,32 @@ func catFilePath(mm MemoryModel) string {
 	return tools.ToSlash(cpath)
 }
 
+func (c *DartagnanChecker) runOptimizationPass(ctx context.Context, testFn string) (error) {
+
+		opt, err := tools.FindCmd("DARTAGNAN_OPT_CMD")
+		if err != nil {
+			return err
+		}
+
+		var opts []string
+		if optflags := tools.GetEnv("DARTAGNAN_OPTFLAGS"); optflags != "" {
+			opts = append(opts, strings.Split(optflags, " ")...)
+		}
+
+		opts = append(opts, "-S", "-o", testFn, testFn,)
+
+		var (
+			cmd     = opt[0]
+			cmdArgs = append(opt[1:], opts...)
+		)
+
+		logger.Info("Optimizing")
+		out, err := tools.RunCmd(cmd, cmdArgs, nil)
+		logger.Debugf("%v", out)
+
+		return err
+}
+
 func (c *DartagnanChecker) run(ctx context.Context, testFn string) (string, error) {
 
 	opts := []string{
@@ -166,6 +196,9 @@ func (c *DartagnanChecker) Check(ctx context.Context, m DumpableModule) (cr Chec
 	defer tools.Remove(testFn)
 
 	if err = tools.Dump(m, testFn); err != nil {
+		return cr, err
+	}
+	if err = c.runOptimizationPass(ctx,testFn); err != nil {
 		return cr, err
 	}
 	sout, err := c.run(ctx, testFn)
