@@ -77,7 +77,8 @@ RUN cd /tmp/dat3m \
  && mkdir -p /usr/share/dat3m/dartagnan \
  && cp -R dartagnan/target /usr/share/dat3m/dartagnan \
  && cp -R include /usr/share/dat3m \
- && cp -R cat /usr/share/dat3m
+ && cp -R cat /usr/share/dat3m \
+ && cp pom.xml /usr/share/dat3m/pom.xml
 
 ################################################################################
 # vsyncer_builder
