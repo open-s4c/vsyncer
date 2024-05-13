@@ -122,6 +122,7 @@ RUN apt-get update \
 
 # dat3m
 COPY --from=dat3m_builder /usr/share/dat3m /usr/share/dat3m
+COPY --from=dat3m_builder /usr/share/dat3m/pom.xml /usr/share/dat3m/pom.xml
 RUN ln -s /usr/share/dat3m/dartagnan/target/libs/*.so /usr/lib/
 ENV DAT3M_HOME=/usr/share/dat3m
 ENV DAT3M_OUTPUT="/tmp/dat3m"
