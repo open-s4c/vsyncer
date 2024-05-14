@@ -37,7 +37,7 @@ func init() {
 	tools.RegEnv("DARTAGNAN_BOUND", "", "Unroll bound integer (default unset)")
 
 	tools.RegEnv("DARTAGNAN_OPT_CMD", "opt", "Path to opt (the llvm optimizer)")
-	tools.RegEnv("DARTAGNAN_OPTFLAGS", "-mem2reg -sroa -early-cse -indvars -loop-unroll -fix-irreducible -loop-simplify -simplifycfg -gvn",
+	tools.RegEnv("DARTAGNAN_OPTFLAGS", "-mem2reg -sroa -early-cse -indvars -loop-unroll -fix-irreducible -loop-simplify",
 		"Flags passed to opt when optimizing the target file for dartagnan")
 }
 
