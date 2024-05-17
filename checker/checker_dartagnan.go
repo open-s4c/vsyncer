@@ -148,8 +148,6 @@ func (c *DartagnanChecker) runOptimizationPass(ctx context.Context, testFn strin
 func (c *DartagnanChecker) run(ctx context.Context, testFn string) (string, error) {
 
 	opts := []string{
-		"--property=program_spec,cat_spec,liveness",
-		"--modeling.threadCreateAlwaysSucceeds=true",
 		"--encoding.wmm.idl2sat=true",
 		"--solver=yices2",
 		fmt.Sprintf("--target=%s", models[c.mm].arch),
