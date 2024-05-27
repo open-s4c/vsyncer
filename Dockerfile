@@ -67,17 +67,16 @@ RUN apt-get update  \
  && rm -rf /var/lib/apt/lists/*
 
 RUN cd /tmp \
- && git clone \
-     https://github.com/hernanponcedeleon/dat3m.git \
- && cd dat3m \
- && git checkout "abab4597e3035b92485a10bfd2926716ea46474a"
+ && git clone --depth 1 --branch "4.1.0" \
+     https://github.com/hernanponcedeleon/dat3m.git
 
 RUN cd /tmp/dat3m \
  && mvn clean install -DskipTests \
  && mkdir -p /usr/share/dat3m/dartagnan \
  && cp -R dartagnan/target /usr/share/dat3m/dartagnan \
  && cp -R include /usr/share/dat3m \
- && cp -R cat /usr/share/dat3m
+ && cp -R cat /usr/share/dat3m \
+ && cp pom.xml /usr/share/dat3m/pom.xml
 
 ################################################################################
 # vsyncer_builder
@@ -122,6 +121,7 @@ RUN apt-get update \
 
 # dat3m
 COPY --from=dat3m_builder /usr/share/dat3m /usr/share/dat3m
+COPY --from=dat3m_builder /usr/share/dat3m/pom.xml /usr/share/dat3m/pom.xml
 RUN ln -s /usr/share/dat3m/dartagnan/target/libs/*.so /usr/lib/
 ENV DAT3M_HOME=/usr/share/dat3m
 ENV DAT3M_OUTPUT="/tmp/dat3m"

@@ -33,11 +33,11 @@ func init() {
 	tools.RegEnv("DARTAGNAN_SET_OPTIONS", "",
 		"Options passed to Dartagnan, replacing the default options")
 	tools.RegEnv("DARTAGNAN_CAT_PATH", "", "Path to custom .cat files")
-	tools.RegEnv("DARTAGNAN_METHOD", "lazy", "Backend method (values: eager | lazy)")
+	tools.RegEnv("DARTAGNAN_SOLVER", "yices2", "Backend SMT solver (values: cvc4 | cvc5 | yices2 | z3)")
 	tools.RegEnv("DARTAGNAN_BOUND", "", "Unroll bound integer (default unset)")
 
 	tools.RegEnv("DARTAGNAN_OPT_CMD", "opt", "Path to opt (the llvm optimizer)")
-	tools.RegEnv("DARTAGNAN_OPTFLAGS", "-mem2reg -sroa -early-cse -indvars -loop-unroll -fix-irreducible -loop-simplify -simplifycfg -gvn",
+	tools.RegEnv("DARTAGNAN_OPTFLAGS", "",
 		"Flags passed to opt when optimizing the target file for dartagnan")
 }
 
@@ -148,8 +148,6 @@ func (c *DartagnanChecker) runOptimizationPass(ctx context.Context, testFn strin
 func (c *DartagnanChecker) run(ctx context.Context, testFn string) (string, error) {
 
 	opts := []string{
-		"--property=program_spec,cat_spec,liveness",
-		"--modeling.threadCreateAlwaysSucceeds=true",
 		"--encoding.wmm.idl2sat=true",
 		"--solver=yices2",
 		fmt.Sprintf("--target=%s", models[c.mm].arch),
@@ -164,8 +162,8 @@ func (c *DartagnanChecker) run(ctx context.Context, testFn string) (string, erro
 		opts = strings.Split(env, " ")
 	}
 
-	if env := tools.GetEnv("DARTAGNAN_METHOD"); env != "" {
-		opts = append(opts, fmt.Sprintf("--method=%s", env))
+	if env := tools.GetEnv("DARTAGNAN_SOLVER"); env != "" {
+		opts = append(opts, fmt.Sprintf("--solver=%s", env))
 	}
 
 	if env := tools.GetEnv("DARTAGNAN_BOUND"); env != "" {
