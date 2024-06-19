@@ -31,7 +31,7 @@ func expandVisitor(mod *ir.Module) VisitCallback {
 
 			// ignore already expanded functions
 			if strings.Contains(fname, "__vsyncer_expand_") {
-				logger.Debugf("skiip %s", fname)
+				logger.Debugf("skip %s", fname)
 				return nil
 			}
 
