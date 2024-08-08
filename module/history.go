@@ -31,7 +31,7 @@ type History struct {
 	}
 }
 
-// Load parses and anlyzes an LLVM IR module.
+// Load parses and analyzes an LLVM IR module.
 func Load(fn string, cfg Config) (*History, error) {
 	var efn = fn
 
@@ -43,7 +43,7 @@ func Load(fn string, cfg Config) (*History, error) {
 		}
 
 		logger.Infof("Expand '%s'", fn)
-		if err := visitModule(mod, cfg.EntryFunc, expandVisitor(mod)); err != nil {
+		if err := visitModule(mod, cfg.EntryFunc, expandVisitor(mod), cfg); err != nil {
 			return nil, err
 		}
 

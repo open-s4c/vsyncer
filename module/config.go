@@ -10,15 +10,16 @@ type Config struct {
 	Expand       bool     // whether it should expand the callgraph
 	ExpandOnly   []string // a list of function prefixes to expand
 	IdentifyOnly []string // a list of function prefixes to identify/atomify
-	IdentifySkip []string // a list of function prefixes to skip identify/atomify
+	SkipFuncPref []string // a list of function prefixes to skip identify/atomify
 	Args         []string // a list of arguments to pass to the command line of the checker
 }
 
 // DefaultConfig returns a default configuration for loading a module
 func DefaultConfig() Config {
 	return Config{
-		EntryFunc: []string{"main"},
-		Expand:    true,
+		EntryFunc:    []string{"main"},
+		SkipFuncPref: []string{"pthread_", "__assert_fail", "llvm.", "_VERIFIER"},
+		Expand:       true,
 	}
 
 }

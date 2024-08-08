@@ -29,7 +29,7 @@ func loadModule(fn string, cfg Config) (*wrapModule, error) {
 	wmod := newWrapModule(mod)
 
 	logger.Infof("Analyze '%s'", fn)
-	if err := wmod.Visit(cfg.EntryFunc, analyze(wmod)); err != nil {
+	if err := wmod.Visit(cfg.EntryFunc, analyze(wmod), cfg); err != nil {
 		return nil, err
 	}
 	return wmod, nil

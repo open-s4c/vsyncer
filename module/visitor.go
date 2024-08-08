@@ -28,17 +28,17 @@ type meta interface {
 // VisitCallback is called in every relevant intruction when visiting the module.
 type VisitCallback func(inst ir.Instruction, f *ir.Func, stack []meta) ir.Instruction
 
-func (w *wrapModule) Visit(fun []string, cb VisitCallback) error {
-	return visitModule(w.Module, fun, cb)
+func (w *wrapModule) Visit(fun []string, cb VisitCallback, cfg Config) error {
+	return visitModule(w.Module, fun, cb, cfg)
 }
 
-func visitModule(m *ir.Module, fun []string, cb VisitCallback) error {
+func visitModule(m *ir.Module, fun []string, cb VisitCallback, cfg Config) error {
 	for _, foo := range fun {
 		for _, f := range m.Funcs {
 			if f.Ident() != fmt.Sprintf("@%s", foo) {
 				continue
 			}
-			v := &visitor{visited: make(map[ir.Instruction]bool)}
+			v := &visitor{visited: make(map[ir.Instruction]bool), skip_prefixes: cfg.SkipFuncPref}
 			v.log("====================== START VISIT ==========================")
 			if err := v.visit(f, []meta{f}, cb); err != nil {
 				return err
@@ -49,8 +49,9 @@ func visitModule(m *ir.Module, fun []string, cb VisitCallback) error {
 }
 
 type visitor struct {
-	dep     string
-	visited map[ir.Instruction]bool
+	dep           string
+	visited       map[ir.Instruction]bool
+	skip_prefixes []string
 }
 
 func (v *visitor) enter() {
@@ -77,6 +78,16 @@ func (v *visitor) logf(str string, args ...any) {
 	}
 	logger.Print(v.dep)
 	logger.Print(fstr(str, args...))
+}
+
+func (v *visitor) is_callee_ignored(callee_name string) bool {
+	for _, prefix := range v.skip_prefixes {
+		// Skip "@" prefix with [1:]
+		if strings.Contains(callee_name[1:], prefix) {
+			return true
+		}
+	}
+	return false
 }
 
 func (v *visitor) visitCallee(inst *ir.InstCall, f *ir.Func, stack []meta, cb VisitCallback) error {
@@ -108,9 +119,7 @@ func (v *visitor) visitCallee(inst *ir.InstCall, f *ir.Func, stack []meta, cb Vi
 		v.enter()
 		err = v.visit(ff, append(stack, inst), cb)
 		v.leave()
-	} else if !strings.Contains(callee[1:], "__assert_fail") && !strings.Contains(callee[1:], "llvm.") &&
-		!strings.Contains(callee[1:], "_VERIFIER") && !strings.Contains(callee[1:], "pthread_") {
-
+	} else if !v.is_callee_ignored(callee) {
 		switch callee := inst.Callee.(type) {
 		case *ir.InlineAsm:
 		case *ir.InstLoad:

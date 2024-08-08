@@ -49,6 +49,7 @@ var rootCmd = cobra.Command{
 func init() {
 	tools.RegEnv("VSYNCER_DEFAULT_CHECKER", "genmc", "Default model checker")
 	tools.RegEnv("VSYNCER_DEFAULT_ENTRY_FUNC", "main", "Default entry functions for analysis")
+	tools.RegEnv("VSYNCER_DEFAULT_SKIP_FUNC", "pthread_,__assert_fail,llvm.,_VERIFIER", "Default prefixes of functions to skip")
 
 	helpMessage :=
 		`vsyncer -- Verification and optimization of concurrent code on WMM`
@@ -70,6 +71,9 @@ func init() {
 	flags.StringSliceVar(&rootFlags.entryFunc, "entry-func",
 		strings.Split(tools.GetEnv("VSYNCER_DEFAULT_ENTRY_FUNC"), ","),
 		"list of entry functions")
+	flags.StringSliceVar(&rootFlags.skipFunc, "skip-func",
+		strings.Split(tools.GetEnv("VSYNCER_DEFAULT_SKIP_FUNC"), ","),
+		"list of function prefixes to skip")
 
 	rootCmd.SetHelpCommand(&cobra.Command{Hidden: true})
 	initOptimize()

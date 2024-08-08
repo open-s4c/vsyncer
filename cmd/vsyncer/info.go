@@ -53,7 +53,8 @@ func Info(fn string, args []string) error {
 
 func moduleConfig() module.Config {
 	return module.Config{
-		EntryFunc: rootFlags.entryFunc,
-		Expand:    rootFlags.expand,
+		EntryFunc:    rootFlags.entryFunc,
+		SkipFuncPref: rootFlags.skipFunc,
+		Expand:       rootFlags.expand,
 	}
 }
