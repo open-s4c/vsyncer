@@ -149,7 +149,6 @@ func (c *DartagnanChecker) run(ctx context.Context, testFn string) (string, erro
 
 	opts := []string{
 		"--encoding.wmm.idl2sat=true",
-		"--solver=yices2",
 		fmt.Sprintf("--target=%s", models[c.mm].arch),
 		catFilePath(c.mm),
 	}
