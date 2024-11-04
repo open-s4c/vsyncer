@@ -34,6 +34,7 @@ jobs:
             USE_DOCKER="true"
 
           cp build/vsyncer build/vsyncer-${{ github.event.release.tag_name }}-linux-amd64
+          cp build/vsyncer-latest build/vsyncer-${{ github.event.release.tag_name }}-latest-linux-amd64
 
       - name: Build for Windows
         run: |
@@ -46,6 +47,7 @@ jobs:
             USE_DOCKER="true"
 
           cp build/vsyncer build/vsyncer-${{ github.event.release.tag_name }}-windows-amd64.exe
+          cp build/vsyncer-latest build/vsyncer-${{ github.event.release.tag_name }}-latest-windows-amd64.exe
 
       - name: Build for macOS amd64
         run: |
@@ -58,6 +60,7 @@ jobs:
             USE_DOCKER="true"
 
           cp build/vsyncer build/vsyncer-${{ github.event.release.tag_name }}-darwin-amd64
+          cp build/vsyncer-latest build/vsyncer-${{ github.event.release.tag_name }}-latest-darwin-amd64
 
       - name: Build for macOS arm64
         run: |
@@ -70,6 +73,7 @@ jobs:
             USE_DOCKER="true"
 
           cp build/vsyncer build/vsyncer-${{ github.event.release.tag_name }}-darwin-arm64
+          cp build/vsyncer-latest build/vsyncer-${{ github.event.release.tag_name }}-latest-darwin-arm64
 
       - name: Release
         uses: softprops/action-gh-release@v2

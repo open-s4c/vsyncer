@@ -6,7 +6,12 @@ USE_DOCKER ?= true
 LDXFLAGS    = -X main.version=$(TAG) \
               -X vsync/tools.useDocker=$(USE_DOCKER) \
               -X vsync/tools.dockerTag=$(DOCKER_TAG)
+LDXFLAGS_L   = -X main.version=$(TAG) \
+              -X vsync/tools.useDocker=$(USE_DOCKER) \
+              -X vsync/tools.dockerTag=latest
+
 LDFLAGS     = -ldflags='-extldflags=-static $(LDXFLAGS)'
+LDFLAGS_L   = -ldflags='-extldflags=-static $(LDXFLAGS_L)'
 
 SOURCES     = $(shell find -name '*.go' -not -name '*_string.go')
 GENERATED   = $(shell find -name *_string.go)
@@ -27,10 +32,11 @@ help:
 
 all: build
 
-build: generate $(BUILD)/vsyncer
+build: generate $(BUILD)/vsyncer $(BUILD)/vsyncer-latest
 
-install: $(BUILD)/vsyncer
+install: $(BUILD)/vsyncer $(BUILD)/vsyncer-latest
 	install $(BUILD)/vsyncer $(PREFIX)/bin/
+	install $(BUILD)/vsyncer-latest $(PREFIX)/bin/
 clean:
 	rm -rf $(BUILD) $(GENERATED)
 
@@ -45,6 +51,8 @@ build-dir:
 $(BUILD)/vsyncer: build-dir $(SOURCES)
 	env CGO_ENABLED=0 go build $(LDFLAGS) -o $@ ./cmd/vsyncer
 
+$(BUILD)/vsyncer-latest: build-dir $(SOURCES)
+	env CGO_ENABLED=0 go build $(LDFLAGS_L) -o $@ ./cmd/vsyncer
 ################################################################################
 # support goals
 ################################################################################
