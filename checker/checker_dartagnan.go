@@ -149,6 +149,8 @@ func (c *DartagnanChecker) run(ctx context.Context, testFn string) (string, erro
 
 	opts := []string{
 		"--encoding.wmm.idl2sat=true",
+		"--bound.load=bound.csv",
+		"--bound.save=bound.csv",
 		fmt.Sprintf("--target=%s", models[c.mm].arch),
 		catFilePath(c.mm),
 	}
@@ -217,9 +219,8 @@ func (c *DartagnanChecker) Check(ctx context.Context, m DumpableModule) (cr Chec
 	} else if strings.Contains(sout, "CAT specification violation found") {
 		return CheckResult{Status: CheckNotSafe, Output: sout}, nil
 	} else if strings.Contains(sout, "Verification finished with result UNKNOWN\n") {
-		text := `No violation found, but the program was not fully unrolled.
-Try increasing the unrolling bound by setting "DARTAGNAN_BOUND=X" (where X is the bound).`
-		return CheckResult{Status: CheckRejected, Output: text}, nil
+		logger.Debug("Increasing the unrolling bounds")
+		return c.Check(ctx, m)
 	} else if strings.Contains(sout, "Number of iterations: 1\n") {
 		text := `Zero violating behaviors found.
 Try increasing the unrolling bound by setting "DARTAGNAN_BOUND=X" (where X is the bound).
