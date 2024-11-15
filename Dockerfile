@@ -67,7 +67,7 @@ RUN apt-get update  \
  && rm -rf /var/lib/apt/lists/*
 
 RUN cd /tmp \
- && git clone --depth 1 --branch "4.1.0" \
+ && git clone --depth 1 --branch "4.2.0" \
      https://github.com/hernanponcedeleon/dat3m.git
 
 RUN cd /tmp/dat3m \
