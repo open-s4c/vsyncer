@@ -70,7 +70,7 @@ RUN cd /tmp \
  && git clone --depth 1 \
      https://github.com/StefanoDalMas/Dat3M.git
 
-RUN cd /tmp/dat3m \
+RUN cd /tmp/Dat3M \
  && mvn clean install -DskipTests \
  && mkdir -p /usr/share/dat3m/dartagnan \
  && cp -R dartagnan/target /usr/share/dat3m/dartagnan \
