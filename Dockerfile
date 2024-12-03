@@ -69,6 +69,7 @@ RUN apt-get update  \
 RUN cd /tmp \
  && git clone --depth 1 \
      https://github.com/StefanoDalMas/Dat3M.git
+ && mv Dat3M dat3m
 
 RUN cd /tmp/dat3m \
  && mvn clean install -DskipTests \
