@@ -34,12 +34,8 @@ RUN apt-get update \
  RUN apt install gcc-12 g++-12 gcc-13 g++-13 -y \
  && rm -rf /var/lib/apt/lists/*
  
-RUN  update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12 --slave /usr/bin/g++ g++ /usr/bin/g++-12 \
-     && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 13 --slave /usr/bin/g++ g++ /usr/bin/g++-13 \
-     
-RUN gcc --version
-
-RUN llvm-config --version
+RUN  update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12 --slave /usr/bin/g++ g++ /usr/bin/g++-12 
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 13 --slave /usr/bin/g++ g++ /usr/bin/g++-13 
 
 # Note: The install prefix in the builder must match the install location on
 # the final image.
