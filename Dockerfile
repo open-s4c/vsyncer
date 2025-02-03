@@ -1,35 +1,37 @@
 # This is a multi-stage dockerfile to build vsyncer and its dependencies
 
-ARG FROM_IMAGE=ghcr.io/enzymead/enzyme-dev-docker/ubuntu-22-llvm-14:1.44
+ARG FROM_IMAGE=ubuntu:22.04
 
 ################################################################################
 # builder image
 ################################################################################
-FROM ${FROM_IMAGE} AS builder
+FROM ${FROM_IMAGE} as builder
 
-USER root
-
-RUN sudo apt-get update \
- && sudo apt-get install -y --no-install-recommends \
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+     clang \
+     libclang-dev \
+     llvm \
+     llvm-dev \
      git \
      libz-dev \
      ca-certificates \
- && sudo rm -rf /var/lib/apt/lists/*
-
- RUN sudo ln -s /usr/bin/llvm-config-14 /usr/bin/llvm-config
- RUN llvm-config --version
+ && rm -rf /var/lib/apt/lists/*
 
 ################################################################################
 # genmc_builder
 ################################################################################
-FROM builder AS genmc_builder
-USER root
-RUN sudo apt-get update \
- && sudo apt-get install -y --no-install-recommends \
+FROM builder as genmc_builder
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
      autoconf \
      automake \
      make \
- && sudo rm -rf /var/lib/apt/lists/*
+ && rm -rf /var/lib/apt/lists/*
+
+RUN gcc --version
+RUN llvm-config --version
 
 # Note: The install prefix in the builder must match the install location on
 # the final image.
@@ -55,17 +57,17 @@ RUN cd /tmp/genmc10 \
 ################################################################################
 # dat3m_builder
 ################################################################################
-FROM builder AS dat3m_builder
-USER root
-RUN sudo apt-get update  \
- && sudo apt-get install -y --no-install-recommends \
+FROM builder as dat3m_builder
+
+RUN apt-get update  \
+ && apt-get install -y --no-install-recommends \
      graphviz \
      maven \
      autoconf \
      automake  \
      openjdk-17-jdk \
      openjdk-17-jre \
- && sudo rm -rf /var/lib/apt/lists/*
+ && rm -rf /var/lib/apt/lists/*
 
 RUN cd /tmp \
  && git clone --depth 1 --branch "4.2.0" \
@@ -82,14 +84,14 @@ RUN cd /tmp/dat3m \
 ################################################################################
 # vsyncer_builder
 ################################################################################
-FROM builder AS vsyncer_builder
-USER root
-RUN sudo apt-get update \
- && sudo apt-get install -y --no-install-recommends \
+FROM builder as vsyncer_builder
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
      golang-go \
      make \
      git \
- && sudo rm -rf /var/lib/apt/lists/*
+ && rm -rf /var/lib/apt/lists/*
 
 ARG VSYNCER_TAG=main
 RUN cd /tmp \
@@ -106,15 +108,19 @@ RUN cd /tmp/vsyncer \
 ################################################################################
 # vsyncer image
 ################################################################################
-FROM ${FROM_IMAGE} AS final
-USER root
+FROM ${FROM_IMAGE} as final
+
 # tools
-RUN sudo apt-get update \
- && sudo apt-get install -y --no-install-recommends \
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+     clang \
      less \
+     libclang-dev \
+     llvm \
+     llvm-dev \
      openjdk-17-jre \
      vim \
- && sudo rm -rf /var/lib/apt/lists/*
+ && rm -rf /var/lib/apt/lists/*
 
 # dat3m
 COPY --from=dat3m_builder /usr/share/dat3m /usr/share/dat3m
