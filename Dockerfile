@@ -5,7 +5,7 @@ ARG FROM_IMAGE=ghcr.io/enzymead/enzyme-dev-docker/ubuntu-22-llvm-14:1.44
 ################################################################################
 # builder image
 ################################################################################
-FROM ${FROM_IMAGE} as builder
+FROM ${FROM_IMAGE} AS builder
 
 USER root
 
@@ -19,7 +19,7 @@ RUN apt-get update \
 ################################################################################
 # genmc_builder
 ################################################################################
-FROM builder as genmc_builder
+FROM builder AS genmc_builder
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
@@ -52,7 +52,7 @@ RUN cd /tmp/genmc10 \
 ################################################################################
 # dat3m_builder
 ################################################################################
-FROM builder as dat3m_builder
+FROM builder AS dat3m_builder
 
 RUN apt-get update  \
  && apt-get install -y --no-install-recommends \
@@ -79,7 +79,7 @@ RUN cd /tmp/dat3m \
 ################################################################################
 # vsyncer_builder
 ################################################################################
-FROM builder as vsyncer_builder
+FROM builder AS vsyncer_builder
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
@@ -103,7 +103,7 @@ RUN cd /tmp/vsyncer \
 ################################################################################
 # vsyncer image
 ################################################################################
-FROM ${FROM_IMAGE} as final
+FROM ${FROM_IMAGE} AS final
 
 # tools
 RUN apt-get update \
