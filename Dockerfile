@@ -30,7 +30,7 @@ RUN apt-get update \
      make \
  && rm -rf /var/lib/apt/lists/*
 
-RUN gcc --version
+
 RUN llvm-config --version
 
 # Note: The install prefix in the builder must match the install location on
