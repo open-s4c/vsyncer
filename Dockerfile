@@ -9,12 +9,12 @@ FROM ${FROM_IMAGE} AS builder
 
 USER root
 
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
+RUN sudo apt-get update \
+ && sudo apt-get install -y --no-install-recommends \
      git \
      libz-dev \
      ca-certificates \
- && rm -rf /var/lib/apt/lists/*
+ && sudo rm -rf /var/lib/apt/lists/*
 
 ################################################################################
 # genmc_builder
