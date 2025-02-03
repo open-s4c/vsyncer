@@ -25,10 +25,10 @@ FROM builder as genmc_builder
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
- && software-properties-common \
      autoconf \
      automake \
-     make 
+     make
+ RUN apt install -y software-properties-common
  RUN add-apt-repository ppa:ubuntu-toolchain-r/test 
  RUN apt-get update
  RUN apt install gcc-12 g++-12 gcc-13 g++-13 -y \
