@@ -108,11 +108,7 @@ FROM ${FROM_IMAGE} AS final
 # tools
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-     clang \
      less \
-     libclang-dev \
-     llvm \
-     llvm-dev \
      openjdk-17-jre \
      vim \
  && rm -rf /var/lib/apt/lists/*
