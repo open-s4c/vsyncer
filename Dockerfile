@@ -19,7 +19,8 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # Add LLVM repository
-RUN bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+RUN wget https://apt.llvm.org/llvm.sh
+RUN ls && bash -c llvm.sh
 RUN apt update
 RUN apt install -y llvm-14 clang-14 lldb-14 lld-14 clangd-14 libllvm14
 
