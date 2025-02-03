@@ -28,10 +28,10 @@ RUN apt-get update \
  && software-properties-common \
      autoconf \
      automake \
-     make \
- && add-apt-repository ppa:ubuntu-toolchain-r/test \
- && apt-get update \
- && apt install gcc-12 g++-12 gcc-13 g++-13 -y \
+     make 
+ RUN add-apt-repository ppa:ubuntu-toolchain-r/test 
+ RUN apt-get update
+ RUN apt install gcc-12 g++-12 gcc-13 g++-13 -y \
  && rm -rf /var/lib/apt/lists/*
  
 RUN  update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12 --slave /usr/bin/g++ g++ /usr/bin/g++-12 \
