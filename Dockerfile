@@ -1,6 +1,6 @@
 # This is a multi-stage dockerfile to build vsyncer and its dependencies
 
-ARG ghcr.io/enzymead/enzyme-dev-docker/ubuntu-22-llvm-14:1.44
+ARG FROM_IMAGE=ghcr.io/enzymead/enzyme-dev-docker/ubuntu-22-llvm-14:1.44
 
 ################################################################################
 # builder image
