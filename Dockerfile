@@ -20,13 +20,13 @@ RUN sudo apt-get update \
 # genmc_builder
 ################################################################################
 FROM builder AS genmc_builder
-
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
+USER root
+RUN sudo apt-get update \
+ && sudo apt-get install -y --no-install-recommends \
      autoconf \
      automake \
      make \
- && rm -rf /var/lib/apt/lists/*
+ && sudo rm -rf /var/lib/apt/lists/*
 
 # Note: The install prefix in the builder must match the install location on
 # the final image.
@@ -53,16 +53,16 @@ RUN cd /tmp/genmc10 \
 # dat3m_builder
 ################################################################################
 FROM builder AS dat3m_builder
-
-RUN apt-get update  \
- && apt-get install -y --no-install-recommends \
+USER root
+RUN sudo apt-get update  \
+ && sudo apt-get install -y --no-install-recommends \
      graphviz \
      maven \
      autoconf \
      automake  \
      openjdk-17-jdk \
      openjdk-17-jre \
- && rm -rf /var/lib/apt/lists/*
+ && sudo rm -rf /var/lib/apt/lists/*
 
 RUN cd /tmp \
  && git clone --depth 1 --branch "4.2.0" \
@@ -80,13 +80,13 @@ RUN cd /tmp/dat3m \
 # vsyncer_builder
 ################################################################################
 FROM builder AS vsyncer_builder
-
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
+USER root
+RUN sudo apt-get update \
+ && sudo apt-get install -y --no-install-recommends \
      golang-go \
      make \
      git \
- && rm -rf /var/lib/apt/lists/*
+ && sudo rm -rf /var/lib/apt/lists/*
 
 ARG VSYNCER_TAG=main
 RUN cd /tmp \
@@ -104,14 +104,14 @@ RUN cd /tmp/vsyncer \
 # vsyncer image
 ################################################################################
 FROM ${FROM_IMAGE} AS final
-
+USER root
 # tools
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
+RUN sudo apt-get update \
+ && sudo apt-get install -y --no-install-recommends \
      less \
      openjdk-17-jre \
      vim \
- && rm -rf /var/lib/apt/lists/*
+ && sudo rm -rf /var/lib/apt/lists/*
 
 # dat3m
 COPY --from=dat3m_builder /usr/share/dat3m /usr/share/dat3m
