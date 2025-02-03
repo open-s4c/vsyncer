@@ -1,6 +1,6 @@
 # This is a multi-stage dockerfile to build vsyncer and its dependencies
 
-ARG FROM_IMAGE=ubuntu:22.04
+ARG ghcr.io/enzymead/enzyme-dev-docker/ubuntu-22-llvm-14:1.44
 
 ################################################################################
 # builder image
@@ -9,26 +9,14 @@ FROM ${FROM_IMAGE} as builder
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-     wget \
-     curl \
-     gnupg \
-     lsb-release \
+     clang \
+     libclang-dev \
+     llvm \
+     llvm-dev \
      git \
      libz-dev \
      ca-certificates \
  && rm -rf /var/lib/apt/lists/*
-
-# Add LLVM repository
-RUN cd /tmp && wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && bash -c llvm.sh
-RUN apt update
-RUN apt install -y llvm-14 clang-14 lldb-14 lld-14 clangd-14 libllvm14
-
-# Set default clang and llvm to version 14
-RUN update-alternatives --install /usr/bin/clang clang /usr/bin/clang-14 100 && \
-    update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-14 100 && \
-    update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-14 100
-
-RUN llvm-config --version
 
 ################################################################################
 # genmc_builder
@@ -55,7 +43,7 @@ RUN cd /tmp/genmc9 \
  && make install -j8
 
 RUN cd /tmp \
- && git clone --depth 1 --branch "master" \
+ && git clone --depth 1 --branch "v0.10.1-a" \
      https://github.com/open-s4c/genmc.git genmc10
 
 RUN cd /tmp/genmc10 \
