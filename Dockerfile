@@ -16,6 +16,9 @@ RUN sudo apt-get update \
      ca-certificates \
  && sudo rm -rf /var/lib/apt/lists/*
 
+ RUN sudo ln -s /usr/bin/llvm-config-14 /usr/bin/llvm-config
+ RUN llvm-config --version
+
 ################################################################################
 # genmc_builder
 ################################################################################
