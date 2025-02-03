@@ -7,12 +7,12 @@ ARG FROM_IMAGE=ghcr.io/enzymead/enzyme-dev-docker/ubuntu-22-llvm-14:1.44
 ################################################################################
 FROM ${FROM_IMAGE} as builder
 
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-     git \
-     libz-dev \
-     ca-certificates \
- && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update \
+# && apt-get install -y --no-install-recommends \
+#     git \
+#     libz-dev \
+#     ca-certificates \
+# && rm -rf /var/lib/apt/lists/*
 
 ################################################################################
 # genmc_builder
