@@ -57,6 +57,8 @@ RUN cd /tmp/genmc10 \
  && ./configure --prefix=/usr/share/genmc10 \
  && make install -j8
 
+RUN /usr/share/genmc10 --version
+RUN /usr/share/genmc9 --version
 ################################################################################
 # dat3m_builder
 ################################################################################
@@ -136,6 +138,9 @@ ENV DAT3M_OUTPUT="/tmp/dat3m"
 COPY --from=genmc_builder /usr/share/genmc9 /usr/share/genmc9
 COPY --from=genmc_builder /usr/share/genmc10 /usr/share/genmc10
 ENV PATH="/usr/share/genmc9/bin:$PATH"
+
+RUN /usr/share/genmc10 --version
+RUN /usr/share/genmc9 --version
 
 # vsyncer
 COPY --from=vsyncer_builder /usr/bin/vsyncer /usr/bin/vsyncer
