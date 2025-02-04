@@ -124,8 +124,14 @@ RUN apt-get update \
      llvm \
      llvm-dev \
      openjdk-17-jre \
-     vim \
+     vim
+RUN apt install -y software-properties-common
+RUN add-apt-repository ppa:ubuntu-toolchain-r/test
+RUN apt-get update
+RUN apt install gcc-13 g++-13 -y \
  && rm -rf /var/lib/apt/lists/*
+
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 13 --slave /usr/bin/g++ g++ /usr/bin/g++-13
 
 # dat3m
 COPY --from=dat3m_builder /usr/share/dat3m /usr/share/dat3m
