@@ -31,7 +31,7 @@ RUN apt-get update \
  RUN apt install -y software-properties-common
  RUN add-apt-repository ppa:ubuntu-toolchain-r/test
  RUN apt-get update
- RUN apt install gcc-13 g++-13 libstdc++6 -y \
+ RUN apt install gcc-13 g++-13 -y \
  && rm -rf /var/lib/apt/lists/*
 
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 13 --slave /usr/bin/g++ g++ /usr/bin/g++-13
@@ -57,8 +57,8 @@ RUN cd /tmp/genmc10 \
  && ./configure --prefix=/usr/share/genmc10 \
  && make install -j8
 
-RUN sudo /usr/share/genmc10/bin/genmc --version
-RUN sudo /usr/share/genmc9/bin/genmc --version
+RUN /usr/share/genmc10/bin/genmc --version
+RUN /usr/share/genmc9/bin/genmc --version
 ################################################################################
 # dat3m_builder
 ################################################################################
@@ -139,8 +139,8 @@ COPY --from=genmc_builder /usr/share/genmc9 /usr/share/genmc9
 COPY --from=genmc_builder /usr/share/genmc10 /usr/share/genmc10
 ENV PATH="/usr/share/genmc9/bin:$PATH"
 
-RUN sudo /usr/share/genmc10/bin/genmc --version
-RUN sudo /usr/share/genmc9/bin/genmc --version
+RUN /usr/share/genmc10/bin/genmc --version
+RUN /usr/share/genmc9/bin/genmc --version
 
 # vsyncer
 COPY --from=vsyncer_builder /usr/bin/vsyncer /usr/bin/vsyncer
