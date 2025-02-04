@@ -49,7 +49,7 @@ RUN cd /tmp/genmc9 \
  && make install -j8
 
 RUN cd /tmp \
- && git clone --depth 1 --branch "master" \
+ && git clone --depth 1 --branch "v0.10.2-a" \
      https://github.com/open-s4c/genmc.git genmc10
 
 RUN cd /tmp/genmc10 \
