@@ -5,7 +5,7 @@ ARG FROM_IMAGE=ubuntu:22.04
 ################################################################################
 # builder image
 ################################################################################
-FROM ${FROM_IMAGE} as builder
+FROM ${FROM_IMAGE} AS builder
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
@@ -21,7 +21,7 @@ RUN apt-get update \
 ################################################################################
 # genmc_builder
 ################################################################################
-FROM builder as genmc_builder
+FROM builder AS genmc_builder
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
@@ -29,13 +29,12 @@ RUN apt-get update \
      automake \
      make
  RUN apt install -y software-properties-common
- RUN add-apt-repository ppa:ubuntu-toolchain-r/test 
+ RUN add-apt-repository ppa:ubuntu-toolchain-r/test
  RUN apt-get update
- RUN apt install gcc-12 g++-12 gcc-13 g++-13 -y \
+ RUN apt install gcc-13 g++-13 -y \
  && rm -rf /var/lib/apt/lists/*
- 
-RUN  update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12 --slave /usr/bin/g++ g++ /usr/bin/g++-12 
-RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 13 --slave /usr/bin/g++ g++ /usr/bin/g++-13 
+
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 13 --slave /usr/bin/g++ g++ /usr/bin/g++-13
 
 # Note: The install prefix in the builder must match the install location on
 # the final image.
@@ -61,7 +60,7 @@ RUN cd /tmp/genmc10 \
 ################################################################################
 # dat3m_builder
 ################################################################################
-FROM builder as dat3m_builder
+FROM builder AS dat3m_builder
 
 RUN apt-get update  \
  && apt-get install -y --no-install-recommends \
@@ -88,7 +87,7 @@ RUN cd /tmp/dat3m \
 ################################################################################
 # vsyncer_builder
 ################################################################################
-FROM builder as vsyncer_builder
+FROM builder AS vsyncer_builder
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
@@ -112,7 +111,7 @@ RUN cd /tmp/vsyncer \
 ################################################################################
 # vsyncer image
 ################################################################################
-FROM ${FROM_IMAGE} as final
+FROM ${FROM_IMAGE} AS final
 
 # tools
 RUN apt-get update \
