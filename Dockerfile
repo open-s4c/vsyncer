@@ -39,26 +39,26 @@ RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 13 --slave /u
 # Note: The install prefix in the builder must match the install location on
 # the final image.
 
-RUN cd /tmp \
- && git clone --depth 1 --branch "v0.9" \
-     https://github.com/open-s4c/genmc.git genmc9
+# RUN cd /tmp \
+#  && git clone --depth 1 --branch "v0.9" \
+#      https://github.com/open-s4c/genmc.git genmc9
 
-RUN cd /tmp/genmc9 \
- && autoreconf --install \
- && ./configure --prefix=/usr/share/genmc9 \
- && make install -j8
+# RUN cd /tmp/genmc9 \
+#  && autoreconf --install \
+#  && ./configure --prefix=/usr/share/genmc9 \
+#  && make install -j8
 
 RUN cd /tmp \
  && git clone --depth 1 --branch "v0.10.2-a" \
-     https://github.com/open-s4c/genmc.git genmc10
+     https://github.com/open-s4c/genmc.git genmc
 
-RUN cd /tmp/genmc10 \
+RUN cd /tmp/genmc \
  && autoreconf --install \
- && ./configure --prefix=/usr/share/genmc10 \
+ && ./configure --prefix=/usr/share/genmc \
  && make install -j8
 
-RUN /usr/share/genmc10/bin/genmc --version
-RUN /usr/share/genmc9/bin/genmc --version
+RUN /usr/share/genmc/bin/genmc --version
+# RUN /usr/share/genmc9/bin/genmc --version
 ################################################################################
 # dat3m_builder
 ################################################################################
@@ -141,12 +141,12 @@ ENV DAT3M_HOME=/usr/share/dat3m
 ENV DAT3M_OUTPUT="/tmp/dat3m"
 
 # genmc
-COPY --from=genmc_builder /usr/share/genmc9 /usr/share/genmc9
-COPY --from=genmc_builder /usr/share/genmc10 /usr/share/genmc10
-ENV PATH="/usr/share/genmc9/bin:$PATH"
+# COPY --from=genmc_builder /usr/share/genmc9 /usr/share/genmc9
+COPY --from=genmc_builder /usr/share/genmc /usr/share/genmc
+ENV PATH="/usr/share/genmc/bin:$PATH"
 
-RUN /usr/share/genmc10/bin/genmc --version
-RUN /usr/share/genmc9/bin/genmc --version
+RUN genmc --version
+# RUN /usr/share/genmc9/bin/genmc --version
 
 # vsyncer
 COPY --from=vsyncer_builder /usr/bin/vsyncer /usr/bin/vsyncer
