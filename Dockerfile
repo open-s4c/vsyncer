@@ -23,7 +23,8 @@ RUN apt-get update \
 ################################################################################
 FROM builder AS genmc_builder
 
-RUN apt-get install -y software-properties-common \
+RUN apt-get update \
+    && apt-get install -y software-properties-common \
     && add-apt-repository ppa:ubuntu-toolchain-r/test \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -114,7 +115,8 @@ RUN cd /tmp/vsyncer \
 FROM ${FROM_IMAGE} AS final
 
 # tools
-RUN apt-get install -y software-properties-common \
+RUN apt-get update \
+    && apt-get install -y software-properties-common \
     && add-apt-repository ppa:ubuntu-toolchain-r/test \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
