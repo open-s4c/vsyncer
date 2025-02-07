@@ -5,7 +5,7 @@ ARG FROM_IMAGE=ubuntu:22.04
 ################################################################################
 # builder image
 ################################################################################
-FROM ${FROM_IMAGE} as builder
+FROM ${FROM_IMAGE} AS builder
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
@@ -21,14 +21,19 @@ RUN apt-get update \
 ################################################################################
 # genmc_builder
 ################################################################################
-FROM builder as genmc_builder
+FROM builder AS genmc_builder
 
 RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-     autoconf \
-     automake \
-     make \
- && rm -rf /var/lib/apt/lists/*
+    && apt-get install -y software-properties-common \
+    && add-apt-repository ppa:ubuntu-toolchain-r/test \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        gcc-13 g++-13 \
+        autoconf \
+        automake \
+        make \
+    && rm -rf /var/lib/apt/lists/*
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 13 --slave /usr/bin/g++ g++ /usr/bin/g++-13
 
 # Note: The install prefix in the builder must match the install location on
 # the final image.
@@ -43,18 +48,20 @@ RUN cd /tmp/genmc9 \
  && make install -j8
 
 RUN cd /tmp \
- && git clone --depth 1 --branch "v0.10.1-a" \
-     https://github.com/open-s4c/genmc.git genmc10
+ && git clone --depth 1 --branch "v0.10.2-a" \
+     https://github.com/open-s4c/genmc.git genmc
 
-RUN cd /tmp/genmc10 \
+RUN cd /tmp/genmc \
  && autoreconf --install \
  && ./configure --prefix=/usr/share/genmc10 \
  && make install -j8
 
+RUN /usr/share/genmc10/bin/genmc --version
+RUN /usr/share/genmc9/bin/genmc --version
 ################################################################################
 # dat3m_builder
 ################################################################################
-FROM builder as dat3m_builder
+FROM builder AS dat3m_builder
 
 RUN apt-get update  \
  && apt-get install -y --no-install-recommends \
@@ -81,7 +88,7 @@ RUN cd /tmp/dat3m \
 ################################################################################
 # vsyncer_builder
 ################################################################################
-FROM builder as vsyncer_builder
+FROM builder AS vsyncer_builder
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
@@ -105,19 +112,24 @@ RUN cd /tmp/vsyncer \
 ################################################################################
 # vsyncer image
 ################################################################################
-FROM ${FROM_IMAGE} as final
+FROM ${FROM_IMAGE} AS final
 
 # tools
 RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-     clang \
-     less \
-     libclang-dev \
-     llvm \
-     llvm-dev \
-     openjdk-17-jre \
-     vim \
- && rm -rf /var/lib/apt/lists/*
+    && apt-get install -y software-properties-common \
+    && add-apt-repository ppa:ubuntu-toolchain-r/test \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        gcc-13 g++-13 \
+        clang \
+        less \
+        libclang-dev \
+        llvm \
+        llvm-dev \
+        openjdk-17-jre \
+        vim \
+    && rm -rf /var/lib/apt/lists/*
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 13 --slave /usr/bin/g++ g++ /usr/bin/g++-13
 
 # dat3m
 COPY --from=dat3m_builder /usr/share/dat3m /usr/share/dat3m
@@ -129,7 +141,10 @@ ENV DAT3M_OUTPUT="/tmp/dat3m"
 # genmc
 COPY --from=genmc_builder /usr/share/genmc9 /usr/share/genmc9
 COPY --from=genmc_builder /usr/share/genmc10 /usr/share/genmc10
-ENV PATH="/usr/share/genmc9/bin:$PATH"
+ENV PATH="/usr/share/genmc10/bin:$PATH"
+
+RUN genmc --version
+RUN /usr/share/genmc9/bin/genmc --version
 
 # vsyncer
 COPY --from=vsyncer_builder /usr/bin/vsyncer /usr/bin/vsyncer
