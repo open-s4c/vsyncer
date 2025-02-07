@@ -53,7 +53,7 @@ RUN cd /tmp \
 
 RUN cd /tmp/genmc \
  && autoreconf --install \
- && ./configure --prefix=/usr/share/genmc \
+ && ./configure --prefix=/usr/share/genmc10 \
  && make install -j8
 
 RUN /usr/share/genmc10/bin/genmc --version
