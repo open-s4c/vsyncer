@@ -30,7 +30,7 @@ RUN apt-get install -y software-properties-common \
         gcc-13 g++-13 \
         autoconf \
         automake \
-        make
+        make \
     && rm -rf /var/lib/apt/lists/*
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 13 --slave /usr/bin/g++ g++ /usr/bin/g++-13
 
@@ -125,7 +125,7 @@ RUN apt-get install -y software-properties-common \
         llvm \
         llvm-dev \
         openjdk-17-jre \
-        vim
+        vim \
     && rm -rf /var/lib/apt/lists/*
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 13 --slave /usr/bin/g++ g++ /usr/bin/g++-13
 
