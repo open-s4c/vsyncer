@@ -213,20 +213,23 @@ func (c *DartagnanChecker) Check(ctx context.Context, m DumpableModule) (cr Chec
 		return cr, err
 	}
 	if strings.Contains(sout, "Program specification violation found") {
+		tools.Remove("bound.csv")
 		return CheckResult{Status: CheckNotSafe, Output: sout}, nil
 	} else if strings.Contains(sout, "Liveness violation found") {
+		tools.Remove("bound.csv")
 		return CheckResult{Status: CheckNotLive, Output: sout}, nil
 	} else if strings.Contains(sout, "CAT specification violation found") {
+		tools.Remove("bound.csv")
 		return CheckResult{Status: CheckNotSafe, Output: sout}, nil
 	} else if strings.Contains(sout, "Verification finished with result UNKNOWN\n") {
 		logger.Debug("Increasing the unrolling bounds")
 		return c.Check(ctx, m)
 	} else if strings.Contains(sout, "Number of iterations: 1\n") {
 		text := `Zero violating behaviors found.
-Try increasing the unrolling bound by setting "DARTAGNAN_BOUND=X" (where X is the bound).
 If your code uses __VERIFIER_assume(...), be sure you know what you are doing!`
 		return CheckResult{Status: CheckRejected, Output: text}, nil
 	}
+	tools.Remove("bound.csv")
 	return CheckResult{Status: CheckOK, Output: sout}, nil
 }
 
