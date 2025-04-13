@@ -20,8 +20,8 @@ const fileMode = 0600
 
 const BOUNDED_RESULT = 1
 const PROGRAM_SPEC_VIOLATION = 10
-const  CAT_SPEC_VIOLATION = 11
-const  TERMINATION_VIOLATION = 12
+const CAT_SPEC_VIOLATION = 11
+const TERMINATION_VIOLATION = 12
 const UNKNOWN_ERROR = 20
 
 // DartagnanChecker wraps the Dartagnan model checker by Hernan Ponce de Leon et al.
@@ -41,10 +41,6 @@ func init() {
 	tools.RegEnv("DARTAGNAN_CAT_PATH", "", "Path to custom .cat files")
 	tools.RegEnv("DARTAGNAN_SOLVER", "yices2", "Backend SMT solver (values: cvc4 | cvc5 | yices2 | z3)")
 	tools.RegEnv("DARTAGNAN_BOUND", "", "Unroll bound integer (default unset)")
-
-	tools.RegEnv("DARTAGNAN_OPT_CMD", "opt", "Path to opt (the llvm optimizer)")
-	tools.RegEnv("DARTAGNAN_OPTFLAGS", "",
-		"Flags passed to opt when optimizing the target file for dartagnan")
 }
 
 // NewDartagnan creates a new checker using Dartagnan model checker.
@@ -125,32 +121,6 @@ func catFilePath(mm MemoryModel) string {
 	return tools.ToSlash(cpath)
 }
 
-func (c *DartagnanChecker) runOptimizationPass(ctx context.Context, testFn string) (error) {
-
-		opt, err := tools.FindCmd("DARTAGNAN_OPT_CMD")
-		if err != nil {
-			return err
-		}
-
-		var opts []string
-		if optflags := tools.GetEnv("DARTAGNAN_OPTFLAGS"); optflags != "" {
-			opts = append(opts, strings.Split(optflags, " ")...)
-		}
-
-		opts = append(opts, "-S", "-o", testFn, testFn,)
-
-		var (
-			cmd     = opt[0]
-			cmdArgs = append(opt[1:], opts...)
-		)
-
-		logger.Info("Optimizing")
-		out, err := tools.RunCmd(cmd, cmdArgs, nil)
-		logger.Debugf("%v", out)
-
-		return err
-}
-
 func (c *DartagnanChecker) run(ctx context.Context, testFn string) (string, error) {
 
 	opts := []string{
@@ -203,9 +173,6 @@ func (c *DartagnanChecker) Check(ctx context.Context, m DumpableModule) (cr Chec
 	if err = tools.Dump(m, testFn); err != nil {
 		return cr, err
 	}
-	if err = c.runOptimizationPass(ctx,testFn); err != nil {
-		return cr, err
-	}
 	sout, err := c.run(ctx, testFn)
 	if ctx.Err() == context.Canceled {
 		return cr, nil
@@ -214,32 +181,31 @@ func (c *DartagnanChecker) Check(ctx context.Context, m DumpableModule) (cr Chec
 		return CheckResult{Status: CheckTimeout}, nil
 	}
 
-	logger.Debug("Output:", sout)
+	logger.Debug("Output:\n", sout)
+	var result CheckResult
 	if err != nil {
 		exiterr := err.(*exec.ExitError)
-		if exiterr.ExitCode() == PROGRAM_SPEC_VIOLATION {
-			tools.Remove("bound.csv")
-			return CheckResult{Status: CheckNotSafe, Output: sout}, nil
-		}
-		if exiterr.ExitCode() == TERMINATION_VIOLATION {
-			tools.Remove("bound.csv")
-			return CheckResult{Status: CheckNotLive, Output: sout}, nil
-		}
-		if exiterr.ExitCode() == CAT_SPEC_VIOLATION {
-			tools.Remove("bound.csv")
-			return CheckResult{Status: CheckNotSafe, Output: sout}, nil
-		}
 		if exiterr.ExitCode() == BOUNDED_RESULT {
 			logger.Debug("Increasing the unrolling bounds")
-			return c.Check(ctx, m)
+			result, _ = c.Check(ctx, m)
 		}
+		switch exiterr.ExitCode() {
+			case PROGRAM_SPEC_VIOLATION, CAT_SPEC_VIOLATION:
+				result = CheckResult{Status: CheckNotSafe, Output: sout}
+			case TERMINATION_VIOLATION:
+				result = CheckResult{Status: CheckNotLive, Output: sout}
+			case UNKNOWN_ERROR:
+				result = CheckResult{Status: CheckRejected, Output: sout}
+		}
+	} else {
+		result = CheckResult{Status: CheckOK, Output: sout}
 	}
 	if strings.Contains(sout, "Number of iterations: 1\n") {
 		text := `Zero violating behaviors found. If your code uses __VERIFIER_assume(...), be sure you know what you are doing!`
-		return CheckResult{Status: CheckRejected, Output: text}, nil
+		result = CheckResult{Status: CheckRejected, Output: text}
 	}
 	tools.Remove("bound.csv")
-	return CheckResult{Status: CheckOK, Output: sout}, nil
+	return result, nil
 }
 
 func init() {
