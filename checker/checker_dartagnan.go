@@ -18,6 +18,12 @@ import (
 
 const fileMode = 0600
 
+const BOUNDED_RESULT = 1
+const PROGRAM_SPEC_VIOLATION = 10
+const  CAT_SPEC_VIOLATION = 11
+const  TERMINATION_VIOLATION = 12
+const UNKNOWN_ERROR = 20
+
 // DartagnanChecker wraps the Dartagnan model checker by Hernan Ponce de Leon et al.
 type DartagnanChecker struct {
 	mm MemoryModel
@@ -210,23 +216,26 @@ func (c *DartagnanChecker) Check(ctx context.Context, m DumpableModule) (cr Chec
 
 	logger.Debug("Output:", sout)
 	if err != nil {
-		return cr, err
+		exiterr := err.(*exec.ExitError)
+		if exiterr.ExitCode() == PROGRAM_SPEC_VIOLATION {
+			tools.Remove("bound.csv")
+			return CheckResult{Status: CheckNotSafe, Output: sout}, nil
+		}
+		if exiterr.ExitCode() == TERMINATION_VIOLATION {
+			tools.Remove("bound.csv")
+			return CheckResult{Status: CheckNotLive, Output: sout}, nil
+		}
+		if exiterr.ExitCode() == CAT_SPEC_VIOLATION {
+			tools.Remove("bound.csv")
+			return CheckResult{Status: CheckNotSafe, Output: sout}, nil
+		}
+		if exiterr.ExitCode() == BOUNDED_RESULT {
+			logger.Debug("Increasing the unrolling bounds")
+			return c.Check(ctx, m)
+		}
 	}
-	if strings.Contains(sout, "Program specification violation found") {
-		tools.Remove("bound.csv")
-		return CheckResult{Status: CheckNotSafe, Output: sout}, nil
-	} else if strings.Contains(sout, "Liveness violation found") {
-		tools.Remove("bound.csv")
-		return CheckResult{Status: CheckNotLive, Output: sout}, nil
-	} else if strings.Contains(sout, "CAT specification violation found") {
-		tools.Remove("bound.csv")
-		return CheckResult{Status: CheckNotSafe, Output: sout}, nil
-	} else if strings.Contains(sout, "Verification finished with result UNKNOWN\n") {
-		logger.Debug("Increasing the unrolling bounds")
-		return c.Check(ctx, m)
-	} else if strings.Contains(sout, "Number of iterations: 1\n") {
-		text := `Zero violating behaviors found.
-If your code uses __VERIFIER_assume(...), be sure you know what you are doing!`
+	if strings.Contains(sout, "Number of iterations: 1\n") {
+		text := `Zero violating behaviors found. If your code uses __VERIFIER_assume(...), be sure you know what you are doing!`
 		return CheckResult{Status: CheckRejected, Output: text}, nil
 	}
 	tools.Remove("bound.csv")
