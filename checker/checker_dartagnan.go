@@ -22,7 +22,7 @@ const BOUNDED_RESULT = 1
 const PROGRAM_SPEC_VIOLATION = 10
 const CAT_SPEC_VIOLATION = 11
 const TERMINATION_VIOLATION = 12
-const UNKNOWN_ERROR = 20
+const UNKNOWN_ERROR = 30
 
 // DartagnanChecker wraps the Dartagnan model checker by Hernan Ponce de Leon et al.
 type DartagnanChecker struct {
