@@ -214,7 +214,6 @@ func init() {
 			return []string{
 				"-DVSYNC_VERIFICATION_DAT3M",
 				"-DVSYNC_DISABLE_SPIN_ANNOTATION",
-				"-I" + tools.GetEnv("DARTAGNAN_HOME") + "/include",
 			}
 		}
 }
